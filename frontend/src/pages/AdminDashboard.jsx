@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
+
 const TABS = [
   {
     label: "Add Teacher",
@@ -42,8 +43,25 @@ const TABS = [
     color: "from-orange-500 to-red-500",
     description: "Publish announcements",
     stat: "Published"
+  },
+  {
+    label: "Create Faculty Notice",
+    route: "/admintohod",
+    icon: "✍️",
+    color: "from-teal-500 to-cyan-600",
+    description: "Create notice for HOD/Faculty",
+    stat: "Faculty"
+  },
+  {
+    label: "Watch Faculty Notice",
+    route: "/admin-to-faculty",
+    icon: "👀",
+    color: "from-indigo-500 to-purple-600",
+    description: "View faculty announcements",
+    stat: "View"
   }
 ];
+
 
 const AdminDashboard = () => {
   const [adminName, setAdminName] = useState('Admin');
@@ -51,13 +69,16 @@ const AdminDashboard = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const navigate = useNavigate();
 
+
   useEffect(() => {
     const uname = localStorage.getItem('userName');
     if (uname) setAdminName(uname);
 
+
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -65,6 +86,7 @@ const AdminDashboard = () => {
     if (hour < 18) return '☀️ Good Afternoon';
     return '🌙 Good Evening';
   };
+
 
   const getTimeString = () => {
     return currentTime.toLocaleTimeString('en-US', { 
@@ -74,12 +96,15 @@ const AdminDashboard = () => {
     });
   };
 
+
   const getDayAndDate = () => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return new Date().toLocaleDateString('en-US', options);
   };
 
+
   const isDark = theme === 'dark';
+
 
   return (
     <>
@@ -89,6 +114,7 @@ const AdminDashboard = () => {
           ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
           : 'bg-gradient-to-br from-white via-blue-50 to-indigo-100'
       } relative overflow-hidden py-8 px-4`}>
+
 
         {/* Background Blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -103,8 +129,10 @@ const AdminDashboard = () => {
           }`}></div>
         </div>
 
+
         {/* Main Content */}
         <div className="relative z-10 w-full max-w-7xl mx-auto">
+
 
           {/* Header with Theme Toggle */}
           <div className="flex justify-between items-start mb-8">
@@ -121,6 +149,7 @@ const AdminDashboard = () => {
               </p>
             </div>
 
+
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
@@ -133,6 +162,7 @@ const AdminDashboard = () => {
               {isDark ? '☀️' : '🌙'}
             </button>
           </div>
+
 
           {/* Welcome Card */}
           <div className={`rounded-3xl p-6 md:p-8 mb-8 border transition-all duration-300 backdrop-blur-xl ${
@@ -159,6 +189,7 @@ const AdminDashboard = () => {
             </div>
           </div>
 
+
           {/* Quick Actions Title */}
           <div className="mb-6">
             <h2 className={`text-2xl md:text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
@@ -169,8 +200,9 @@ const AdminDashboard = () => {
             </p>
           </div>
 
-          {/* Quick Actions Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+
+          {/* Quick Actions Grid - Updated to handle 7 items */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
             {TABS.map((tab, idx) => (
               <button
                 key={tab.route}
@@ -184,6 +216,7 @@ const AdminDashboard = () => {
               >
                 {/* Gradient Overlay */}
                 <div className={`absolute inset-0 bg-gradient-to-r ${tab.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
+
 
                 {/* Content */}
                 <div className="relative p-6 text-center">
@@ -201,11 +234,13 @@ const AdminDashboard = () => {
                   </div>
                 </div>
 
+
                 {/* Bottom Bar */}
-                <div className={`h-1 bg-gradient-to-r ${tab.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left absolute bottom-0`}></div>
+                <div className={`h-1 bg-gradient-to-r ${tab.color} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left absolute bottom-0 w-full`}></div>
               </button>
             ))}
           </div>
+
 
           {/* Info Section */}
           <div className={`rounded-2xl p-6 md:p-8 border transition-all duration-300 ${
@@ -232,6 +267,7 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+
 
         {/* Animations */}
         <style>{`
@@ -261,5 +297,6 @@ const AdminDashboard = () => {
     </>
   );
 };
+
 
 export default AdminDashboard;
