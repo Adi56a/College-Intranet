@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 
+
 const TeacherDashboard = () => {
   const [teacherData, setTeacherData] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [theme, setTheme] = useState('light');
   const [fadeIn, setFadeIn] = useState(false);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     setFadeIn(true);
@@ -17,6 +19,7 @@ const TeacherDashboard = () => {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
 
+
     if (token && userRole === 'teacher') {
       setTeacherData({
         name: userName || 'Teacher',
@@ -25,12 +28,15 @@ const TeacherDashboard = () => {
       });
     }
 
+
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
+
     return () => clearInterval(timer);
   }, []);
+
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -39,10 +45,12 @@ const TeacherDashboard = () => {
     return '🌙 Good Evening';
   };
 
+
   const getDayAndDate = () => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return new Date().toLocaleDateString('en-US', options);
   };
+
 
   const getTimeString = () => {
     return currentTime.toLocaleTimeString('en-US', { 
@@ -52,6 +60,7 @@ const TeacherDashboard = () => {
       hour12: true 
     });
   };
+
 
   const shortcuts = [
     {
@@ -63,26 +72,55 @@ const TeacherDashboard = () => {
       route: '/all-students'
     },
     {
-      title: 'Notices',
+      title: 'General Notices',
       description: 'View announcements & updates',
       icon: '📢',
       color: 'from-indigo-400 to-blue-500',
       hoverShadow: 'hover:shadow-indigo-200',
       route: '/admintoall'
+    },
+    {
+      title: 'Admin Notices',
+      description: 'View admin notices for faculty',
+      icon: '👀',
+      color: 'from-purple-400 to-indigo-500',
+      hoverShadow: 'hover:shadow-purple-200',
+      route: '/admin-to-faculty'
+    }, 
+    {
+      title: 'Manage Subject',
+      description: 'Add Subject for students to upload',
+      icon: '➕',
+      color: 'from-purple-400 to-indigo-500',
+      hoverShadow: 'hover:shadow-purple-200',
+      route: '/manage-subjects'
+    },
+    {
+      title: 'Manage Events',
+      description: 'Upload drive links with Event titles',
+      icon: '🎊',
+      color: 'from-indigo-400 to-blue-500',
+      hoverShadow: 'hover:shadow-indigo-200',
+      route: '/events'
     }
+
   ];
 
+
   const isDark = theme === 'dark';
+
 
   return (
     <>
       <Header />
+
 
       <div className={`min-h-screen transition-colors duration-300 ${
         isDark 
           ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
           : 'bg-gradient-to-br from-white via-blue-50 to-indigo-100'
       } py-8 px-4 relative overflow-hidden`}>
+
 
         {/* Animated Background Blobs */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -97,8 +135,10 @@ const TeacherDashboard = () => {
           }`}></div>
         </div>
 
+
         {/* Main Content */}
         <div className={`relative z-10 w-full max-w-6xl mx-auto transition-all duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
+
 
           {/* Header with Theme Toggle */}
           <div className="flex justify-between items-start mb-10 animate-fadeInDown">
@@ -115,6 +155,7 @@ const TeacherDashboard = () => {
               </p>
             </div>
 
+
             {/* Theme Toggle */}
             <button
               onClick={() => setTheme(isDark ? 'light' : 'dark')}
@@ -127,6 +168,7 @@ const TeacherDashboard = () => {
               {isDark ? '☀️ Light' : '🌙 Dark'}
             </button>
           </div>
+
 
           {/* Welcome Section */}
           <div className="mb-10 animate-fadeInDown" style={{ animationDelay: '100ms' }}>
@@ -151,6 +193,7 @@ const TeacherDashboard = () => {
                 </p>
               </div>
 
+
               {/* Date & Time */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 
@@ -163,6 +206,7 @@ const TeacherDashboard = () => {
                   <p className={`text-sm md:text-base font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>📅 Today's Date</p>
                   <p className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{getDayAndDate()}</p>
                 </div>
+
 
                 {/* Time */}
                 <div className={`rounded-2xl p-4 md:p-6 transition-all duration-300 hover:shadow-lg ${
@@ -177,8 +221,9 @@ const TeacherDashboard = () => {
             </div>
           </div>
 
+
           {/* Quick Shortcuts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {shortcuts.map((shortcut, index) => (
               <button
                 key={index}
@@ -193,6 +238,7 @@ const TeacherDashboard = () => {
                 {/* Gradient Background on Hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${shortcut.color} rounded-3xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
 
+
                 {/* Content */}
                 <div className="relative z-10 text-center">
                   {/* Icon */}
@@ -200,15 +246,18 @@ const TeacherDashboard = () => {
                     {shortcut.icon}
                   </div>
 
+
                   {/* Title */}
                   <h4 className={`text-lg md:text-xl lg:text-2xl font-bold mb-2 md:mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
                     {shortcut.title}
                   </h4>
 
+
                   {/* Description */}
                   <p className={`text-sm md:text-base mb-4 md:mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {shortcut.description}
                   </p>
+
 
                   {/* CTA Arrow */}
                   <div className={`inline-block px-6 py-2 md:px-8 md:py-3 bg-gradient-to-r ${shortcut.color} text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 text-sm md:text-base`}>
@@ -219,14 +268,16 @@ const TeacherDashboard = () => {
             ))}
           </div>
 
+
           {/* Footer Note */}
-          <div className="mt-12 md:mt-16 text-center animate-fadeInUp" style={{ animationDelay: '300ms' }}>
+          <div className="mt-12 md:mt-16 text-center animate-fadeInUp" style={{ animationDelay: '450ms' }}>
             <p className={`text-sm md:text-base ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
               💡 Keep your students engaged and informed with timely updates
             </p>
           </div>
         </div>
       </div>
+
 
       {/* Animations */}
       <style>{`
@@ -274,5 +325,6 @@ const TeacherDashboard = () => {
     </>
   );
 };
+
 
 export default TeacherDashboard;

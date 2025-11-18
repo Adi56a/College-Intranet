@@ -1,13 +1,22 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Header from '../components/Header';
 
 const StudentUpload = () => {
   const [file, setFile] = useState(null);
+  const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
+  const [ipAddress, setIpAddress] = useState('Fetching...');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [theme, setTheme] = useState('light');
+  const [subjects, setSubjects] = useState([]);
+  const [loadingSubjects, setLoadingSubjects] = useState(true);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
   const fileInputRef = useRef(null);
+  const subjectInputRef = useRef(null);
+  const suggestionsRef = useRef(null);
 
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB
   const ALLOWED_TYPES = [
@@ -22,6 +31,123 @@ const StudentUpload = () => {
     'video/mp4',
     'video/quicktime'
   ];
+
+  // Fetch subjects on component mount
+  useEffect(() => {
+    fetchSubjects();
+    fetchIP();
+  }, []);
+
+  // Filter suggestions based on input
+  useEffect(() => {
+    if (subject.trim().length > 0) {
+      const filtered = subjects.filter(s =>
+        s.toLowerCase().includes(subject.toLowerCase())
+      );
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions(subjects);
+    }
+  }, [subject, subjects]);
+
+  // Handle click outside to close suggestions
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target) &&
+        !subjectInputRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const fetchSubjects = async () => {
+    try {
+      setLoadingSubjects(true);
+      const token = localStorage.getItem('authToken');
+      const response = await fetch('http://localhost:3000/api/teacher/get-subjects', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSubjects(data.subjects || []);
+        setFilteredSuggestions(data.subjects || []);
+      }
+    } catch (error) {
+      console.error('Error fetching subjects:', error);
+    } finally {
+      setLoadingSubjects(false);
+    }
+  };
+
+  const fetchIP = async () => {
+    try {
+      const response = await fetch('https://api.ipify.org?format=json');
+      const data = await response.json();
+      setIpAddress(data.ip || 'Unknown');
+    } catch (error) {
+      setIpAddress('Unable to fetch');
+    }
+  };
+
+  const handleSubjectFocus = () => {
+    setShowSuggestions(true);
+    setFocusedIndex(-1);
+  };
+
+  const handleSubjectChange = (e) => {
+    setSubject(e.target.value);
+    setShowSuggestions(true);
+    setFocusedIndex(-1);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setSubject(suggestion);
+    setShowSuggestions(false);
+    setFocusedIndex(-1);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showSuggestions || filteredSuggestions.length === 0) return;
+
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault();
+        setFocusedIndex((prev) =>
+          prev < filteredSuggestions.length - 1 ? prev + 1 : 0
+        );
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setFocusedIndex((prev) =>
+          prev > 0 ? prev - 1 : filteredSuggestions.length - 1
+        );
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (focusedIndex >= 0 && focusedIndex < filteredSuggestions.length) {
+          handleSuggestionClick(filteredSuggestions[focusedIndex]);
+        }
+        break;
+      case 'Escape':
+        setShowSuggestions(false);
+        setFocusedIndex(-1);
+        break;
+      default:
+        break;
+    }
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -87,6 +213,11 @@ const StudentUpload = () => {
       return;
     }
 
+    if (!subject.trim()) {
+      setMessage({ type: 'error', text: '📚 Please select a subject' });
+      return;
+    }
+
     if (!description.trim()) {
       setMessage({ type: 'error', text: '📝 Description is required' });
       return;
@@ -103,6 +234,7 @@ const StudentUpload = () => {
       const token = localStorage.getItem('authToken');
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('subject', subject.trim());
       formData.append('description', description);
 
       const response = await fetch('http://localhost:3000/student-upload', {
@@ -120,6 +252,7 @@ const StudentUpload = () => {
       } else {
         setMessage({ type: 'success', text: '✅ Uploaded successfully!' });
         setFile(null);
+        setSubject('');
         setDescription('');
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
@@ -217,6 +350,93 @@ const StudentUpload = () => {
           }`}>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+
+              {/* IP Address Field (Disabled) */}
+              <div>
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  🌐 Your IP Address
+                </label>
+                <input
+                  type="text"
+                  value={ipAddress}
+                  disabled
+                  className={`w-full px-4 py-3 rounded-xl font-mono text-sm cursor-not-allowed ${
+                    isDark
+                      ? 'bg-gray-700/30 border border-gray-600/50 text-gray-400'
+                      : 'bg-gray-100 border border-gray-300 text-gray-600'
+                  }`}
+                />
+                <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  Auto-detected • Read-only
+                </p>
+              </div>
+
+              {/* Subject Input with Autocomplete */}
+              <div className="relative">
+                <label className={`block text-sm font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+                  📚 Select Subject <span className="text-blue-500">*</span>
+                </label>
+                
+                <input
+                  ref={subjectInputRef}
+                  type="text"
+                  value={subject}
+                  onChange={handleSubjectChange}
+                  onFocus={handleSubjectFocus}
+                  onKeyDown={handleKeyDown}
+                  placeholder={loadingSubjects ? "Loading subjects..." : "Type to search subjects..."}
+                  disabled={loading || loadingSubjects}
+                  className={`w-full px-4 py-3 rounded-xl focus:outline-none focus:ring-2 transition-all ${
+                    isDark
+                      ? 'bg-gray-700/50 border border-gray-600/50 text-white placeholder-gray-400 focus:border-cyan-500 focus:ring-cyan-500/20'
+                      : 'bg-blue-50 border border-blue-200 text-gray-900 placeholder-gray-500 focus:border-cyan-500 focus:ring-cyan-500/10'
+                  }`}
+                  autoComplete="off"
+                />
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && filteredSuggestions.length > 0 && (
+                  <div
+                    ref={suggestionsRef}
+                    className={`absolute top-full left-0 right-0 mt-2 max-h-60 overflow-y-auto rounded-xl border shadow-2xl z-20 animate-slideDown ${
+                      isDark ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+                    }`}
+                  >
+                    {filteredSuggestions.map((suggestion, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className={`w-full text-left px-4 py-3 transition-all flex items-center gap-3 ${
+                          idx === focusedIndex
+                            ? 'bg-blue-500 text-white'
+                            : isDark
+                            ? 'text-gray-200 hover:bg-gray-700'
+                            : 'text-gray-700 hover:bg-blue-50'
+                        } ${idx !== filteredSuggestions.length - 1 ? 'border-b border-gray-200 dark:border-gray-700' : ''}`}
+                      >
+                        <span className="text-xl">📖</span>
+                        <span className="font-medium">{suggestion}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {showSuggestions && filteredSuggestions.length === 0 && subject.trim() && (
+                  <div
+                    ref={suggestionsRef}
+                    className={`absolute top-full left-0 right-0 mt-2 p-4 rounded-xl border shadow-lg z-20 text-center ${
+                      isDark ? 'bg-gray-800 border-gray-700 text-gray-400' : 'bg-white border-gray-200 text-gray-600'
+                    }`}
+                  >
+                    No matching subjects found
+                  </div>
+                )}
+
+                <p className={`text-xs mt-2 ${isDark ? 'text-gray-500' : 'text-gray-500'}`}>
+                  💡 Use ↑↓ arrows to navigate, Enter to select, Esc to close
+                </p>
+              </div>
 
               {/* File Upload Area */}
               <div>
@@ -327,9 +547,9 @@ const StudentUpload = () => {
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !file}
+                disabled={loading || !file || !subject.trim()}
                 className={`w-full py-4 rounded-xl font-bold text-white transition-all duration-300 transform flex items-center justify-center gap-2 ${
-                  loading || !file
+                  loading || !file || !subject.trim()
                     ? isDark ? 'bg-gray-600 cursor-not-allowed opacity-50' : 'bg-gray-400 cursor-not-allowed opacity-50'
                     : `bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 hover:scale-105 active:scale-95 shadow-lg`
                 }`}

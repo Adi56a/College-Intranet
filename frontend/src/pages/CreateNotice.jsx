@@ -3,6 +3,7 @@ import Header from '../components/Header';
 
 const CreateNotice = () => {
   const [file, setFile] = useState(null);
+  const [noticeType, setNoticeType] = useState('general');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -11,6 +12,14 @@ const CreateNotice = () => {
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   const ALLOWED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain', 'image/jpeg', 'image/png'];
+
+  const noticeTypes = [
+    { value: 'general', label: 'General', icon: '📋' },
+    { value: 'attendance', label: 'Attendance', icon: '📝' },
+    { value: 'holiday', label: 'Holiday', icon: '🎉' },
+    { value: 'exam', label: 'Exam', icon: '📚' },
+    { value: 'placement', label: 'Placement', icon: '💼' }
+  ];
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -65,6 +74,11 @@ const CreateNotice = () => {
       return;
     }
 
+    if (!noticeType) {
+      setMessage({ type: 'error', text: '🏷️ Please select a notice type' });
+      return;
+    }
+
     if (!description.trim()) {
       setMessage({ type: 'error', text: '📝 Description is required' });
       return;
@@ -81,6 +95,7 @@ const CreateNotice = () => {
       const token = localStorage.getItem('authToken');
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('notice_type', noticeType);
       formData.append('description', description);
 
       const response = await fetch('http://localhost:3000/upload-file', {
@@ -98,6 +113,7 @@ const CreateNotice = () => {
       } else {
         setMessage({ type: 'success', text: '✅ File uploaded successfully!' });
         setFile(null);
+        setNoticeType('general');
         setDescription('');
         setUploadProgress(0);
         if (fileInputRef.current) {
@@ -218,6 +234,25 @@ const CreateNotice = () => {
                     )}
                   </div>
                 </div>
+              </div>
+
+              {/* Notice Type Dropdown */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-300 mb-2">
+                  🏷️ Notice Type <span className="text-pink-400">*</span>
+                </label>
+                <select
+                  value={noticeType}
+                  onChange={(e) => setNoticeType(e.target.value)}
+                  disabled={loading}
+                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
+                >
+                  {noticeTypes.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.icon} {type.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               {/* Description */}
