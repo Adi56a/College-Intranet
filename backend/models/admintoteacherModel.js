@@ -1,20 +1,29 @@
 const mongoose = require('mongoose');
 
-// Define the AdminToTeacher schema
 const adminToTeacherSchema = new mongoose.Schema({
   description: {
     type: String,
-      // Ensures that description is always provided
-    trim: true,      // Removes extra spaces
+    trim: true,
+    required: true,
   },
   file: {
-    data: Buffer,  // The file data will be stored as a binary buffer
-    contentType: String,  // The type of the file (e.g., 'application/pdf', 'image/jpeg', etc.)
-      // The file is mandatory
+    data: {
+      type: Buffer,
+      required: true,
+    },
+    contentType: {
+      type: String,
+      required: true,
+    }
   },
-}, { timestamps: true });  // Adds createdAt and updatedAt fields automatically
+  notice_type: {
+    type: String,
+    enum: ['attendance', 'holiday', 'exam', 'placement', 'general'],
+    default: 'general',
+    required: true
+  },
+}, { timestamps: true });
 
-// Create the model using the schema
 const AdminToTeacher = mongoose.model('AdminToTeacher', adminToTeacherSchema);
 
 module.exports = AdminToTeacher;
