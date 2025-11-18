@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -210,7 +210,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 flex items-center justify-center p-4 md:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-indigo-100 flex flex-col items-center justify-center p-4 md:p-8 relative overflow-hidden">
       
       {/* Animated Background Blobs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -234,9 +234,9 @@ const Login = () => {
       )}
 
       {/* Main Container */}
-      <div className="relative z-10 w-full max-w-6xl">
+      <div className="relative z-10 w-full max-w-6xl flex-1 flex items-center">
         
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-center w-full">
           
           {/* Left Side - Header & Info (Hidden on Mobile) */}
           <div className="hidden md:block text-left">
@@ -485,6 +485,38 @@ const Login = () => {
                 <>Don't have account? <a href="#" className="text-blue-600 font-semibold hover:text-blue-700 cursor-pointer" onClick={() => activePanel === 0 && setShowSignup(true)}>Sign up</a></>
               )}
             </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Developer Credit Footer */}
+      <div className="relative z-10 mt-12 w-full py-6 px-4 border-t border-gray-300/50 backdrop-blur-sm">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="text-center md:text-left">
+              <p className="text-sm font-semibold text-gray-700">
+                💻 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Developer</span>
+              </p>
+              <p className="text-gray-600 text-sm font-medium">Aditya Jogdand (AIML)</p>
+            </div>
+            
+            <div className="w-px h-8 bg-gray-300/50 hidden md:block"></div>
+            
+            <div className="text-center md:text-right">
+              <p className="text-sm font-semibold text-gray-700">
+                📧 <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Email</span>
+              </p>
+              <a 
+                href="mailto:adityajogdand15@gmail.com" 
+                className="text-blue-600 hover:text-blue-700 font-medium text-sm transition-colors"
+              >
+                adityajogdand15@gmail.com
+              </a>
+            </div>
+          </div>
+          
+          <div className="mt-4 pt-4 border-t border-gray-200/50 text-center">
+            <p className="text-xs text-gray-500">© 2025 FEAT Intranet | Built with React & Tailwind CSS</p>
           </div>
         </div>
       </div>
