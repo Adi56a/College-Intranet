@@ -102,6 +102,14 @@ const TeacherDashboard = () => {
       color: 'from-indigo-400 to-blue-500',
       hoverShadow: 'hover:shadow-indigo-200',
       route: '/events'
+    },
+    {
+      title: 'Personal Files',
+      description: 'Upload Class files for Easy access',
+      icon: '📚',
+      color: 'from-indigo-400 to-blue-500',
+      hoverShadow: 'hover:shadow-indigo-200',
+      route: '/personal'
     }
 
   ];
