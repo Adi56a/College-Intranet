@@ -12,6 +12,7 @@ const StudentUpload = require('./models/studentUploads')
 const verifyUser  = require('./middlewares/verifyUser')
 const Student = require('./models/studentModel')
 const AdminToHod = require('./models/admintohod')
+const Personal = require('./models/personalModel')
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -252,6 +253,68 @@ app.get('/getadmintohod', async (req, res) => {
   }
 });
 
+
+app.post('/add-personalfiles-teacher', verifyUser, upload.single('file'), async (req, res) => {
+  try {
+    if (!req.teacher || !req.teacher._id) {
+      return res.status(401).json({ message: 'Unauthorized: Teacher not authenticated' });
+    }
+
+    const { title } = req.body;
+    const file = req.file;
+
+    if (!title || !title.trim()) {
+      return res.status(400).json({ message: 'Title is required' });
+    }
+    if (!file) {
+      return res.status(400).json({ message: 'File is required' });
+    }
+
+    const personalFile = new Personal({
+      title: title.trim(),
+      teacher_id: req.teacher._id,
+      file: {
+        data: file.buffer,
+        contentType: file.mimetype
+      }
+    });
+
+    const savedFile = await personalFile.save();
+
+    return res.status(201).json({ message: 'Personal file added successfully', personalFile: savedFile });
+  } catch (error) {
+    console.error('Error in /add-personalfiles:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+app.get('/get-personalfile-teacher', verifyUser, async (req, res) => {
+  try {
+    if (!req.teacher || !req.teacher._id) {
+      return res.status(401).json({ message: 'Unauthorized: Teacher not authenticated' });
+    }
+
+    const personalFiles = await Personal.find({ teacher_id: req.teacher._id }).sort({ createdAt: -1 });
+
+    // Format file data to base64 string for easier frontend handling
+    const filesWithBase64 = personalFiles.map(file => ({
+      _id: file._id,
+      title: file.title,
+      teacher_id: file.teacher_id,
+      createdAt: file.createdAt,
+      updatedAt: file.updatedAt,
+      file: {
+        data: file.file.data.toString('base64'),
+        contentType: file.file.contentType
+      }
+    }));
+
+    return res.status(200).json({ personalFiles: filesWithBase64 });
+  } catch (error) {
+    console.error('Error in /get-personalfile:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
 connectDB()
