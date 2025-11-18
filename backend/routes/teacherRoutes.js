@@ -2,6 +2,8 @@ const express = require('express');
 const Teacher = require('../models/teacherModel'); // Assuming the Teacher model is in 'models/Teacher.js'
 const router = express.Router();
 const verifyUser = require('../middlewares/verifyUser')
+const Subject = require('../models/subjectModel')
+const CreateEvent = require('../models/EventModel')
 
 
 
@@ -80,5 +82,94 @@ router.get('/get-teachers', verifyUser, async (req, res) => {
     return res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
+
+
+router.post('/add-subject', verifyUser, async (req, res) => {
+  try {
+    // Check if role is 'teacher'
+    if (!req.teacher || req.teacher.role !== 'teacher') {
+      return res.status(403).json({ message: 'Forbidden: Only teachers can add subjects' });
+    }
+
+    const { newSubject } = req.body;
+
+    if (!newSubject || typeof newSubject !== 'string' || !newSubject.trim()) {
+      return res.status(400).json({ message: 'Invalid or missing newSubject in body' });
+    }
+
+    // Trim subject string
+    const trimmedSubject = newSubject.trim();
+
+    // Find existing subject document or create if doesn't exist
+    let subjectDoc = await Subject.findOne();
+    if (!subjectDoc) {
+      subjectDoc = new Subject({ subject: [trimmedSubject] });
+    } else {
+      // Check duplicate ignoring case
+      const lowerCaseSubjects = subjectDoc.subject.map(s => s.toLowerCase());
+      if (lowerCaseSubjects.includes(trimmedSubject.toLowerCase())) {
+        return res.status(409).json({ message: 'Subject already exists' });
+      }
+      subjectDoc.subject.push(trimmedSubject);
+    }
+
+    await subjectDoc.save();
+
+    return res.status(200).json({ message: 'Subject added successfully', subjectDoc });
+  } catch (error) {
+    console.error('Error in /add-subject:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.get('/get-subjects', async (req, res) => {
+  try {
+    // Assuming a single document with an array of subjects
+    const subjectDoc = await Subject.findOne();
+
+    if (!subjectDoc) {
+      return res.status(200).json({ subjects: [] });
+    }
+
+    return res.status(200).json({ subjects: subjectDoc.subject });
+  } catch (error) {
+    console.error('Error in /get-subjects:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.post('/create-event', async (req, res) => {
+  try {
+    const { driveUrl, title, description } = req.body;
+
+    // Validate required fields
+    if (!driveUrl || !title) {
+      return res.status(400).json({ message: 'Drive URL and Title are required.' });
+    }
+
+    // Create and save new event
+    const newEvent = new CreateEvent({ driveUrl, title, description });
+    await newEvent.save();
+
+    res.status(201).json({ message: 'Event created successfully', event: newEvent });
+  } catch (error) {
+    console.error('Error creating event:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+router.get('/get-events', async (req, res) => {
+  try {
+    const events = await CreateEvent.find().sort({ createdAt: -1 });
+    res.status(200).json({ events });
+  } catch (error) {
+    console.error('Error fetching events:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 module.exports = router;
