@@ -14,3 +14,4 @@ export default defineConfig({
   //   strictPort: true,      // Ensure that the port is strictly used (if 5173 is taken, it will fail)
   // },
 })
+4
