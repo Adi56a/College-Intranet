@@ -12,6 +12,10 @@ import AllStudents from './pages/AllStudents';
 import MyUploads from './pages/MyUploads';
 import TeacherDashboard from './pages/TeacherDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminToHodUpload from './pages/AdminToHod';
+import NoticeToFaculty from './pages/NoticeToFaculty';
+import ManageSubjects from './pages/ManageSubjects';
+import Event from './pages/Event';
 
 // Unauthorized Access Component with Role-Based Navigation
 const UnauthorizedAccess = () => {
@@ -227,6 +231,10 @@ function App() {
             element={<ProtectedRoute element={<AdminDashboard />} requiredRoles={['admin']} />} 
           />
           <Route 
+            path="/admintohod" 
+            element={<ProtectedRoute element={<AdminToHodUpload />} requiredRoles={['admin']} />} 
+          />
+          <Route 
             path="/add-teacher" 
             element={<ProtectedRoute element={<AddTeacher />} requiredRoles={['admin']} />} 
           />
@@ -240,9 +248,19 @@ function App() {
           />
 
           {/* Admin & Teacher Routes - Shared access */}
+
+
+          <Route 
+            path="/events" 
+            element={<ProtectedRoute element={<Event />} requiredRoles={['admin', 'teacher']} />} 
+          />
           <Route 
             path="/all-students" 
             element={<ProtectedRoute element={<AllStudents />} requiredRoles={['admin', 'teacher']} />} 
+          />
+          <Route 
+            path="/admin-to-faculty" 
+            element={<ProtectedRoute element={<NoticeToFaculty />} requiredRoles={['admin', 'teacher']} />} 
           />
           <Route 
             path="/admintoall" 
@@ -253,6 +271,10 @@ function App() {
           <Route 
             path="/teacher-dashboard" 
             element={<ProtectedRoute element={<TeacherDashboard />} requiredRoles={['teacher']} />} 
+          />
+          <Route 
+            path="/manage-subjects" 
+            element={<ProtectedRoute element={<ManageSubjects/>} requiredRoles={['teacher']} />} 
           />
 
           {/* Student Routes - Only Student can access */}
