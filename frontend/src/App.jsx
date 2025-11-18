@@ -16,7 +16,7 @@ import AdminToHodUpload from './pages/AdminToHod';
 import NoticeToFaculty from './pages/NoticeToFaculty';
 import ManageSubjects from './pages/ManageSubjects';
 import Event from './pages/Event';
-
+import Personal from './pages/Personal';
 // Unauthorized Access Component with Role-Based Navigation
 const UnauthorizedAccess = () => {
   const navigate = useNavigate();
@@ -250,6 +250,10 @@ function App() {
           {/* Admin & Teacher Routes - Shared access */}
 
 
+          <Route 
+            path="/personal" 
+            element={<ProtectedRoute element={<Personal />} requiredRoles={['admin', 'teacher']} />} 
+          />
           <Route 
             path="/events" 
             element={<ProtectedRoute element={<Event />} requiredRoles={['admin', 'teacher']} />} 
