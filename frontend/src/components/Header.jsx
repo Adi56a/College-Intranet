@@ -4,25 +4,45 @@ import { useNavigate } from 'react-router-dom';
 const Header = () => {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   const userRole = localStorage.getItem('userRole') || '';
   const userName = localStorage.getItem('userName') || 'User';
 
-  // Auto-logout after 6 hours
+  // On mount, check token expiry and set timeout to logout
   useEffect(() => {
-    const timer = setTimeout(() => {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userId');
-      localStorage.removeItem('userName');
-      navigate('/login');
-    }, 6 * 60 * 60 * 1000); // 6 hours in milliseconds
+    const expiryTime = localStorage.getItem('authTokenExpiry');
 
-    return () => clearTimeout(timer);
+    if (expiryTime) {
+      const now = new Date().getTime();
+      if (now > Number(expiryTime)) {
+        // Token expired, clear all and navigate to login
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('authTokenExpiry');
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        navigate('/login');
+      } else {
+        // Set timeout for remaining time until expiry
+        const timeout = Number(expiryTime) - now;
+        const timer = setTimeout(() => {
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('authTokenExpiry');
+          localStorage.removeItem('userRole');
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userName');
+          navigate('/login');
+        }, timeout);
+
+        return () => clearTimeout(timer);
+      }
+    }
   }, [navigate]);
 
+  // Logout handler to clear storage and redirect
   const handleLogout = () => {
     localStorage.removeItem('authToken');
+    localStorage.removeItem('authTokenExpiry');
     localStorage.removeItem('userRole');
     localStorage.removeItem('userId');
     localStorage.removeItem('userName');
@@ -60,7 +80,7 @@ const Header = () => {
     <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 shadow-lg border-b border-slate-700/50 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
-          
+
           {/* Logo Section */}
           <div className="flex items-center gap-3">
             <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg shadow-lg">
@@ -79,7 +99,7 @@ const Header = () => {
 
           {/* Right Section - Desktop */}
           <div className="hidden md:flex items-center gap-6">
-            
+
             {/* User Role Badge */}
             <div className={`px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 capitalize ${getRoleColor()}`}>
               <span>{getRoleIcon()}</span>
@@ -127,7 +147,7 @@ const Header = () => {
         {/* Mobile Menu */}
         {menuOpen && (
           <div className="md:hidden pb-4 border-t border-gray-700/50 mt-4 pt-4 animate-slideDown">
-            
+
             {/* Mobile User Info */}
             <div className="mb-4 p-3 bg-gray-700/30 rounded-lg">
               <p className="text-white font-semibold text-sm">{userName}</p>
