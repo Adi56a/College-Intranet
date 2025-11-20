@@ -152,5 +152,49 @@ router.get('/meStudent', verifyUser, async (req, res) => {
   }
 });
 
+
+router.post('/updatepassword', verifyUser, async (req, res) => {
+  try {
+    // Assume req.user or req.student contains authenticated student info
+    const studentId = req.student || req.student._id;
+    const { newPassword } = req.body;
+
+    if (!newPassword || newPassword.length < 6) {
+      return res.status(400).json({ message: 'New password must be at least 6 characters long.' });
+    }
+
+    // Update password **directly without hashing**
+    const updatedStudent = await Student.findByIdAndUpdate(
+      studentId,
+      { password: newPassword },
+      { new: true }
+    );
+
+    if (!updatedStudent) {
+      return res.status(404).json({ message: 'Student not found.' });
+    }
+
+    res.json({ message: 'Password updated successfully.' });
+  } catch (error) {
+    console.error('Error updating password:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
+
+router.get('/getpassword', verifyUser, async (req, res) => {
+  try {
+    const studentId = req.student || req.student._id;
+
+    const student = await Student.findById(studentId).select('password');
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found.' });
+    }
+
+    res.json({ password: student.password });
+  } catch (error) {
+    console.error('Error fetching password:', error);
+    res.status(500).json({ message: 'Internal server error.' });
+  }
+});
 // Export the router
 module.exports = router;

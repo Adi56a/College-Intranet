@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const verifyUser = require('../middlewares/verifyUser')
 
 // Sample route: GET /api/users
 router.get('/', (req, res) => {
@@ -7,10 +8,7 @@ router.get('/', (req, res) => {
 });
 
 // Sample route: POST /api/users
-router.post('/', (req, res) => {
-  const newUser = req.body; // Assume the user data is in the request body
-  res.json({ message: 'User created', user: newUser });
-});
+
 
 // Export the router
 module.exports = router;

@@ -17,7 +17,7 @@ function generateAuthToken(admin) {
   const token = jwt.sign({ 
     _id: admin._id, 
     role: admin.role 
-  }, secretkey, { expiresIn: '6h' }); // Token expires in 1 hour
+  }, secretkey, { expiresIn: '2h' }); // Token expires in 1 hour
   return token;
 }
 
@@ -28,7 +28,7 @@ function generateTeacherToken(teacher) {
       role: 'teacher', // Add the role of the teacher
     },
     secretkey,
-    { expiresIn: '6h' } // Token expires in 1 hour
+    { expiresIn: '2h' } // Token expires in 1 hour
   );
   return token;
 }
@@ -40,7 +40,7 @@ function generateStudentToken(student) {
       role: 'student', // Hardcoding the role as 'student'
     },
     secretkey,
-    { expiresIn: '6h' } // Token expires in 1 hour
+    { expiresIn: '2h' } // Token expires in 1 hour
   );
   return token;
 }
