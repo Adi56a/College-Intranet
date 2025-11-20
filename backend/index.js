@@ -39,43 +39,109 @@ app.get('/', (req, res) => {
   res.send('Hello, World!');
 });
 
-
+app.post('/tokencheck', verifyUser, (req, res) => {
+  // If verifyUser middleware passes, token is valid
+  // Return user info or success message as required
+  if (req.teacher) {
+    return res.json({ message: 'Token valid', role: 'teacher', user: req.teacher });
+  }
+  if (req.student) {
+    return res.json({ message: 'Token valid', role: 'student', user: req.student });
+  }
+  if (req.admin) {
+    return res.json({ message: 'Token valid', role: 'admin', user: req.admin });
+  }
+  // Should not happen if middleware works properly
+  return res.status(403).json({ message: 'Role not authorized' });
+});
+ 
 app.post('/upload-file', upload.single('file'), async (req, res) => {
   try {
-    const { description } = req.body;
+    const { description, notice_type } = req.body;
     const { file } = req;
 
-    // Check if a file is provided
+    // Validation
     if (!file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+      return res.status(400).json({ 
+        success: false,
+        message: 'No file uploaded' 
+      });
     }
 
-    // Check if description is provided
-    if (!description) {
-      return res.status(400).json({ message: 'Description is required' });
+    if (!description || description.trim().length === 0) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Description is required' 
+      });
     }
 
-    // Create a new document in the AdminToTeacher collection
+    if (description.trim().length < 10) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Description must be at least 10 characters' 
+      });
+    }
+
+    if (!notice_type) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Notice type is required' 
+      });
+    }
+
+    // Valid notice types
+    const validNoticeTypes = ['general', 'attendance', 'holiday', 'exam', 'placement'];
+    if (!validNoticeTypes.includes(notice_type)) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Invalid notice type' 
+      });
+    }
+
+    // Create new document
     const newFileEntry = new AdminToTeacher({
-      description,
+      description: description.trim(),
+      notice_type: notice_type,
       file: {
-        data: file.buffer,  // File data as binary buffer
-        contentType: file.mimetype,  // The MIME type (e.g., 'application/pdf')
+        data: file.buffer,
+        contentType: file.mimetype
       }
     });
 
-    // Save the document to MongoDB
+    // Save to database
     await newFileEntry.save();
 
     return res.status(200).json({
+      success: true,
       message: 'File uploaded successfully',
-      file: newFileEntry,
+      data: {
+        id: newFileEntry._id,
+        description: newFileEntry.description,
+        notice_type: newFileEntry.notice_type,
+        contentType: newFileEntry.file.contentType,
+        createdAt: newFileEntry.createdAt
+      }
     });
+
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Error uploading file' });
+    console.error('File upload error:', error);
+    
+    if (error instanceof multer.MulterError) {
+      if (error.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ 
+          success: false,
+          message: 'File size exceeds 10MB limit' 
+        });
+      }
+    }
+    
+    return res.status(500).json({ 
+      success: false,
+      message: error.message || 'Error uploading file' 
+    });
   }
 });
+
 
 app.get('/get-file/:id', async (req, res) => {
   try {
