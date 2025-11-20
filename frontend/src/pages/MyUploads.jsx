@@ -1,4 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import { 
+  FiFolder, 
+  FiDownload, 
+  FiEye, 
+  FiX,
+  FiCalendar,
+  FiClock,
+  FiFileText,
+  FiCheckCircle,
+  FiAlertCircle
+} from 'react-icons/fi';
+import { 
+  AiOutlineFilePdf, 
+  AiOutlineFileWord, 
+  AiOutlineFileExcel, 
+  AiOutlineFileImage,
+  AiOutlineFile
+} from 'react-icons/ai';
 import Header from '../components/Header';
 
 const MyUploads = () => {
@@ -7,7 +25,6 @@ const MyUploads = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   const [selectedUpload, setSelectedUpload] = useState(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [theme, setTheme] = useState('light');
 
   useEffect(() => {
     fetchMyUploads();
@@ -41,21 +58,22 @@ const MyUploads = () => {
   };
 
   const getFileIcon = (contentType) => {
-    if (contentType.includes('pdf')) return '📕';
-    if (contentType.includes('image') || contentType.includes('jpeg') || contentType.includes('jpg') || contentType.includes('png')) return '🖼️';
-    if (contentType.includes('word') || contentType.includes('document')) return '📘';
-    if (contentType.includes('sheet') || contentType.includes('excel')) return '📊';
-    if (contentType.includes('text')) return '📄';
-    return '📦';
+    if (contentType.includes('pdf')) return <AiOutlineFilePdf size={40} className="text-red-500" />;
+    if (contentType.includes('image') || contentType.includes('jpeg') || contentType.includes('jpg') || contentType.includes('png')) 
+      return <AiOutlineFileImage size={40} className="text-purple-500" />;
+    if (contentType.includes('word') || contentType.includes('document')) return <AiOutlineFileWord size={40} className="text-blue-600" />;
+    if (contentType.includes('sheet') || contentType.includes('excel')) return <AiOutlineFileExcel size={40} className="text-green-600" />;
+    if (contentType.includes('text')) return <FiFileText size={40} className="text-slate-600" />;
+    return <AiOutlineFile size={40} className="text-slate-400" />;
   };
 
   const getFileType = (contentType) => {
-    if (contentType.includes('pdf')) return 'PDF';
-    if (contentType.includes('jpeg') || contentType.includes('jpg')) return 'JPEG';
-    if (contentType.includes('png')) return 'PNG';
-    if (contentType.includes('word') || contentType.includes('document')) return 'Word';
-    if (contentType.includes('sheet') || contentType.includes('excel')) return 'Excel';
-    if (contentType.includes('text')) return 'Text';
+    if (contentType.includes('pdf')) return 'PDF Document';
+    if (contentType.includes('jpeg') || contentType.includes('jpg')) return 'JPEG Image';
+    if (contentType.includes('png')) return 'PNG Image';
+    if (contentType.includes('word') || contentType.includes('document')) return 'Word Document';
+    if (contentType.includes('sheet') || contentType.includes('excel')) return 'Excel Spreadsheet';
+    if (contentType.includes('text')) return 'Text File';
     return 'File';
   };
 
@@ -76,7 +94,7 @@ const MyUploads = () => {
   const handleDownload = (upload, idx) => {
     try {
       if (!upload.file?.data) {
-        setMessage({ type: 'error', text: '❌ File data not available' });
+        setMessage({ type: 'error', text: 'File data not available' });
         return;
       }
 
@@ -109,17 +127,17 @@ const MyUploads = () => {
       else if (upload.file.contentType.includes('text')) extension = '.txt';
       else extension = '';
 
-      link.download = `my_upload_${idx}${extension}`;
+      link.download = `upload_${idx + 1}${extension}`;
       document.body.appendChild(link);
       link.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(link);
 
-      setMessage({ type: 'success', text: '✅ Downloaded successfully!' });
+      setMessage({ type: 'success', text: 'File downloaded successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
       console.error('Download error:', error);
-      setMessage({ type: 'error', text: '❌ Error downloading file' });
+      setMessage({ type: 'error', text: 'Error downloading file' });
     }
   };
 
@@ -144,7 +162,7 @@ const MyUploads = () => {
           <img
             src={`data:${upload.file.contentType};base64,${base64Data}`}
             alt="Preview"
-            className="max-w-full max-h-96 rounded-2xl"
+            className="max-w-full max-h-96 rounded-xl shadow-lg"
           />
         );
       }
@@ -153,7 +171,7 @@ const MyUploads = () => {
         return (
           <iframe
             src={`data:${upload.file.contentType};base64,${base64Data}`}
-            className="w-full h-96 rounded-2xl"
+            className="w-full h-96 rounded-xl shadow-lg"
             title="PDF Preview"
           />
         );
@@ -166,199 +184,169 @@ const MyUploads = () => {
     }
   };
 
-  const isDark = theme === 'dark';
-
   return (
     <>
       <Header />
 
-      <div className={`min-h-screen transition-colors duration-300 ${
-        isDark
-          ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-          : 'bg-gradient-to-br from-white via-blue-50 to-indigo-100'
-      } py-8 px-4 relative overflow-hidden`}>
-
-        {/* Animated Background */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className={`absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob ${
-            isDark ? 'bg-blue-500' : 'bg-blue-200'
-          }`}></div>
-          <div className={`absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 ${
-            isDark ? 'bg-purple-500' : 'bg-indigo-200'
-          }`}></div>
-          <div className={`absolute top-1/2 left-1/2 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000 ${
-            isDark ? 'bg-cyan-500' : 'bg-cyan-200'
-          }`}></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+        
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51, 65, 85) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto">
 
-          {/* Header with Theme Toggle */}
-          <div className="flex justify-between items-start mb-10">
-            <div>
-              <h1 className={`text-4xl md:text-5xl font-bold mb-2 ${
-                isDark ? 'text-white' : 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
-              }`}>
-                📂 My Uploads
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <FiFolder size={32} className="text-blue-600" />
+              <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">
+                My Uploads
               </h1>
-              <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
-                View and manage your submissions
-              </p>
             </div>
-
-            {/* Theme Toggle */}
-            <button
-              onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`px-4 py-2 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${
-                isDark
-                  ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-                  : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg'
-              }`}
-            >
-              {isDark ? '☀️ Light' : '🌙 Dark'}
-            </button>
+            <p className="text-slate-600">View and manage your submitted assignments</p>
           </div>
 
           {/* Alert Messages */}
           {message.text && (
-            <div className={`mb-6 p-4 rounded-2xl border backdrop-blur-xl animate-slideDown ${
+            <div className={`mb-6 p-4 rounded-xl border-2 flex items-center gap-3 ${
               message.type === 'success'
-                ? isDark
-                  ? 'bg-green-500/20 border-green-500/50 text-green-300'
-                  : 'bg-green-100 border-green-300 text-green-800'
-                : isDark
-                  ? 'bg-red-500/20 border-red-500/50 text-red-300'
-                  : 'bg-red-100 border-red-300 text-red-800'
+                ? 'bg-green-50 border-green-500 text-green-800'
+                : 'bg-red-50 border-red-500 text-red-800'
             }`}>
-              <p className="font-semibold text-center text-sm md:text-base">{message.text}</p>
+              {message.type === 'success' ? (
+                <FiCheckCircle size={20} className="flex-shrink-0" />
+              ) : (
+                <FiAlertCircle size={20} className="flex-shrink-0" />
+              )}
+              <p className="font-semibold">{message.text}</p>
             </div>
           )}
 
           {/* Loading State */}
           {loading ? (
-            <div className="flex items-center justify-center py-32">
-              <div className="animate-spin h-16 w-16 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <div className="flex flex-col items-center justify-center py-32">
+              <div className="animate-spin h-16 w-16 border-4 border-blue-500 border-t-transparent rounded-full mb-4"></div>
+              <p className="text-slate-600">Loading your uploads...</p>
             </div>
           ) : !studentData ? (
-            <div className={`text-center py-32 rounded-3xl border ${isDark ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/50 border-blue-100'}`}>
-              <p className="text-5xl mb-4">❌</p>
-              <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>Error loading your data</p>
+            <div className="text-center py-32 bg-white rounded-2xl border border-slate-200">
+              <FiAlertCircle size={64} className="mx-auto mb-4 text-red-500" />
+              <p className="text-slate-600 text-lg">Error loading your data</p>
             </div>
           ) : (
             <>
               {/* Student Info Section */}
-              <div className={`mb-8 rounded-3xl p-6 border transition-all duration-300 ${
-                isDark
-                  ? 'bg-gray-800/50 border-gray-700/50 backdrop-blur-xl'
-                  : 'bg-white border-blue-100/50 backdrop-blur-xl'
-              }`}>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-blue-50'}`}>
-                    <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Name</p>
-                    <p className={isDark ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{studentData.name}</p>
+              <div className="mb-8 bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <h2 className="text-lg font-bold text-slate-900 mb-4">Student Information</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Name</p>
+                    <p className="text-slate-900 font-bold">{studentData.name}</p>
                   </div>
-                  <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-blue-50'}`}>
-                    <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Roll No</p>
-                    <p className={isDark ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{studentData.rollNumber}</p>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Roll Number</p>
+                    <p className="text-slate-900 font-bold">{studentData.rollNumber}</p>
                   </div>
-                  <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-blue-50'}`}>
-                    <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Department</p>
-                    <p className={isDark ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{studentData.department}</p>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Department</p>
+                    <p className="text-slate-900 font-bold">{studentData.department}</p>
                   </div>
-                  <div className={`p-4 rounded-xl ${isDark ? 'bg-gray-700/50' : 'bg-blue-50'}`}>
-                    <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Email</p>
-                    <p className={`${isDark ? 'text-white' : 'text-gray-900'} font-bold text-xs break-all`}>{studentData.email}</p>
+                  <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                    <p className="text-xs font-semibold text-slate-600 mb-1">Email</p>
+                    <p className="text-slate-900 font-bold text-xs break-all">{studentData.email}</p>
                   </div>
                 </div>
               </div>
 
               {/* Uploads Section */}
               {!studentData.uploads || studentData.uploads.length === 0 ? (
-                <div className={`text-center py-32 rounded-3xl border ${isDark ? 'bg-gray-800/50 border-gray-700/50' : 'bg-white/50 border-blue-100'}`}>
-                  <p className="text-6xl mb-4">📭</p>
-                  <p className={isDark ? 'text-gray-300 text-lg' : 'text-gray-600 text-lg'}>No uploads yet</p>
-                  <p className={`text-sm mt-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>Start uploading to see submissions here</p>
+                <div className="text-center py-32 bg-white rounded-2xl border border-slate-200">
+                  <FiFolder size={64} className="mx-auto mb-4 text-slate-300" />
+                  <p className="text-slate-600 text-lg font-semibold mb-2">No uploads yet</p>
+                  <p className="text-sm text-slate-500">Your submitted assignments will appear here</p>
                 </div>
               ) : (
-                <>
-                  {/* Uploads Grid */}
-                  <div className="space-y-4">
-                    {studentData.uploads
-                      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                      .map((upload, idx) => {
-                        const { day, date, time } = formatDateTime(upload.createdAt);
-                        return (
-                          <div
-                            key={idx}
-                            className={`rounded-2xl p-6 border transition-all duration-300 hover:shadow-lg ${
-                              isDark
-                                ? 'bg-gray-800/50 border-gray-700/50 hover:border-blue-500/50'
-                                : 'bg-white border-blue-100/50 hover:border-blue-400/50'
-                            }`}
-                          >
-                            {/* Upload Header */}
-                            <div className="flex items-start justify-between mb-4">
-                              <div className="flex items-center gap-4">
-                                <span className="text-4xl">{getFileIcon(upload.file.contentType)}</span>
-                                <div>
-                                  <p className={`font-bold text-lg ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                                    {getFileType(upload.file.contentType)} Submission
-                                  </p>
-                                  <p className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    {day}, {date} • {time}
-                                  </p>
+                <div className="space-y-4">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4">
+                    Submissions ({studentData.uploads.length})
+                  </h2>
+
+                  {studentData.uploads
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .map((upload, idx) => {
+                      const { day, date, time } = formatDateTime(upload.createdAt);
+                      return (
+                        <div
+                          key={idx}
+                          className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-blue-300 transition-all"
+                        >
+                          {/* Upload Header */}
+                          <div className="flex items-start justify-between mb-4">
+                            <div className="flex items-center gap-4">
+                              <div className="flex-shrink-0">
+                                {getFileIcon(upload.file.contentType)}
+                              </div>
+                              <div>
+                                <p className="font-bold text-lg text-slate-900">
+                                  {getFileType(upload.file.contentType)}
+                                </p>
+                                <div className="flex items-center gap-4 text-sm text-slate-600 mt-1">
+                                  <span className="flex items-center gap-1">
+                                    <FiCalendar size={14} />
+                                    {day}, {date}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <FiClock size={14} />
+                                    {time}
+                                  </span>
                                 </div>
                               </div>
-                              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                                isDark
-                                  ? 'bg-blue-500/20 border border-blue-500/50 text-blue-300'
-                                  : 'bg-blue-100 border border-blue-300 text-blue-700'
-                              }`}>
-                                #{idx + 1}
-                              </span>
                             </div>
-
-                            {/* Description */}
-                            <div className={`mb-4 p-3 rounded-lg ${isDark ? 'bg-gray-700/50' : 'bg-blue-50'}`}>
-                              <p className={`text-sm font-semibold mb-1 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                                📝 Description
-                              </p>
-                              <p className={`text-sm line-clamp-2 ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>
-                                {upload.description}
-                              </p>
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2">
-                              <button
-                                onClick={() => {
-                                  setSelectedUpload(upload);
-                                  setShowPreviewModal(true);
-                                }}
-                                className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all text-sm ${
-                                  isDark
-                                    ? 'bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white'
-                                    : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white'
-                                }`}
-                              >
-                                👁️ Preview
-                              </button>
-                              <button
-                                onClick={() => handleDownload(upload, idx)}
-                                className={`flex-1 px-4 py-2 rounded-lg font-semibold transition-all text-sm ${
-                                  isDark
-                                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
-                                    : 'bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white'
-                                }`}
-                              >
-                                💾 Download
-                              </button>
-                            </div>
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 border border-blue-200 text-blue-700">
+                              #{idx + 1}
+                            </span>
                           </div>
-                        );
-                      })}
-                  </div>
-                </>
+
+                          {/* Description */}
+                          <div className="mb-4 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                            <div className="flex items-center gap-2 mb-2">
+                              <FiFileText size={16} className="text-slate-600" />
+                              <p className="text-sm font-semibold text-slate-700">Description</p>
+                            </div>
+                            <p className="text-sm text-slate-700 leading-relaxed">
+                              {upload.description}
+                            </p>
+                          </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => {
+                                setSelectedUpload(upload);
+                                setShowPreviewModal(true);
+                              }}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold bg-blue-600 hover:bg-blue-700 text-white transition-all"
+                            >
+                              <FiEye size={18} />
+                              Preview
+                            </button>
+                            <button
+                              onClick={() => handleDownload(upload, idx)}
+                              className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold bg-green-600 hover:bg-green-700 text-white transition-all"
+                            >
+                              <FiDownload size={18} />
+                              Download
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
               )}
             </>
           )}
@@ -367,23 +355,20 @@ const MyUploads = () => {
 
       {/* Preview Modal */}
       {showPreviewModal && selectedUpload && (
-        <div className={`fixed inset-0 flex items-center justify-center z-50 p-4 animate-fadeIn ${
-          isDark ? 'bg-black/70' : 'bg-black/60'
-        }`}>
-          <div className={`rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border ${
-            isDark
-              ? 'bg-gray-900 border-gray-700'
-              : 'bg-white border-blue-100'
-          }`}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-slate-200">
 
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-              <h2 className="text-2xl font-bold text-white">👁️ Preview</h2>
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10 rounded-t-2xl">
+              <div className="flex items-center gap-2">
+                <FiEye size={24} className="text-white" />
+                <h2 className="text-xl font-bold text-white">File Preview</h2>
+              </div>
               <button
                 onClick={() => setShowPreviewModal(false)}
                 className="text-white hover:bg-white/20 p-2 rounded-lg transition"
               >
-                ✕
+                <FiX size={24} />
               </button>
             </div>
 
@@ -392,46 +377,45 @@ const MyUploads = () => {
 
               {/* File Info */}
               <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-blue-50'}`}>
-                  <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>File Type</p>
-                  <p className={isDark ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{getFileType(selectedUpload.file.contentType)}</p>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-600 mb-1">File Type</p>
+                  <p className="text-slate-900 font-bold">{getFileType(selectedUpload.file.contentType)}</p>
                 </div>
-                <div className={`p-4 rounded-lg ${isDark ? 'bg-gray-800' : 'bg-blue-50'}`}>
-                  <p className={`text-xs font-semibold mb-1 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>Uploaded</p>
-                  <p className={isDark ? 'text-white font-bold' : 'text-gray-900 font-bold'}>{formatDateTime(selectedUpload.createdAt).fullDate}</p>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+                  <p className="text-xs font-semibold text-slate-600 mb-1">Uploaded On</p>
+                  <p className="text-slate-900 font-bold">{formatDateTime(selectedUpload.createdAt).fullDate}</p>
                 </div>
               </div>
 
               {/* Description */}
-              <div className={`mb-6 p-4 rounded-lg ${isDark ? 'bg-gray-800/50' : 'bg-blue-50'}`}>
-                <p className={`font-bold text-sm mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>📝 Description:</p>
-                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-200' : 'text-gray-700'}`}>{selectedUpload.description}</p>
+              <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <FiFileText size={16} className="text-slate-600" />
+                  <p className="font-bold text-sm text-slate-700">Description</p>
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed">{selectedUpload.description}</p>
               </div>
 
               {/* Preview */}
-              <div className={`rounded-2xl p-6 flex items-center justify-center mb-6 min-h-64 ${
-                isDark ? 'bg-gray-800/50' : 'bg-gray-100'
-              }`}>
+              <div className="rounded-xl bg-slate-100 p-6 flex items-center justify-center min-h-64">
                 {renderPreview(selectedUpload) ? (
                   renderPreview(selectedUpload)
                 ) : (
                   <div className="text-center">
-                    <p className="text-5xl mb-3">{getFileIcon(selectedUpload.file.contentType)}</p>
-                    <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Preview not available</p>
+                    <div className="mb-4">
+                      {getFileIcon(selectedUpload.file.contentType)}
+                    </div>
+                    <p className="text-slate-600">Preview not available for this file type</p>
                   </div>
                 )}
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className={`px-6 py-4 border-t flex gap-2 ${isDark ? 'border-gray-700 bg-gray-800/30' : 'border-blue-100'}`}>
+            <div className="px-6 py-4 border-t border-slate-200 flex gap-3 bg-slate-50 rounded-b-2xl">
               <button
                 onClick={() => setShowPreviewModal(false)}
-                className={`flex-1 px-4 py-2 rounded-lg font-semibold transition ${
-                  isDark
-                    ? 'bg-gray-700 hover:bg-gray-600 text-white'
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-900'
-                }`}
+                className="flex-1 px-4 py-3 rounded-xl font-semibold bg-slate-200 hover:bg-slate-300 text-slate-900 transition-all"
               >
                 Close
               </button>
@@ -440,56 +424,15 @@ const MyUploads = () => {
                   handleDownload(selectedUpload, 0);
                   setShowPreviewModal(false);
                 }}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-semibold rounded-lg transition"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-xl font-semibold bg-green-600 hover:bg-green-700 text-white transition-all"
               >
-                💾 Download
+                <FiDownload size={18} />
+                Download
               </button>
             </div>
           </div>
         </div>
       )}
-
-      {/* Animations */}
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-          }
-          to {
-            opacity: 1;
-          }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out;
-        }
-      `}</style>
     </>
   );
 };

@@ -1,24 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { 
+  FiUsers, 
+  FiBell, 
+  FiEye, 
+  FiCalendar, 
+  FiClock,
+  FiSun,
+  FiMoon,
+  FiSunrise,
+  FiArrowRight,
+  FiBook,
+  FiPlus,
+  FiFileText
+} from 'react-icons/fi';
+import { MdEventNote } from 'react-icons/md';
 import Header from '../components/Header';
-
 
 const TeacherDashboard = () => {
   const [teacherData, setTeacherData] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [theme, setTheme] = useState('light');
-  const [fadeIn, setFadeIn] = useState(false);
   const navigate = useNavigate();
 
-
   useEffect(() => {
-    setFadeIn(true);
-    
     const token = localStorage.getItem('authToken');
     const userRole = localStorage.getItem('userRole');
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
-
 
     if (token && userRole === 'teacher') {
       setTeacherData({
@@ -28,29 +36,24 @@ const TeacherDashboard = () => {
       });
     }
 
-
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
 
-
     return () => clearInterval(timer);
   }, []);
 
-
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return '🌅 Good Morning';
-    if (hour < 18) return '☀️ Good Afternoon';
-    return '🌙 Good Evening';
+    if (hour < 12) return { text: 'Good Morning', icon: <FiSunrise className="inline" /> };
+    if (hour < 18) return { text: 'Good Afternoon', icon: <FiSun className="inline" /> };
+    return { text: 'Good Evening', icon: <FiMoon className="inline" /> };
   };
-
 
   const getDayAndDate = () => {
     const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     return new Date().toLocaleDateString('en-US', options);
   };
-
 
   const getTimeString = () => {
     return currentTime.toLocaleTimeString('en-US', { 
@@ -61,278 +64,174 @@ const TeacherDashboard = () => {
     });
   };
 
+  const greeting = getGreeting();
 
   const shortcuts = [
     {
       title: 'All Students',
-      description: 'Manage all enrolled students',
-      icon: '👥',
-      color: 'from-blue-400 to-cyan-500',
-      hoverShadow: 'hover:shadow-blue-200',
+      description: 'Manage enrolled students',
+      icon: <FiUsers size={32} />,
+      color: 'from-blue-500 to-blue-600',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
       route: '/all-students'
     },
     {
       title: 'General Notices',
       description: 'View announcements & updates',
-      icon: '📢',
-      color: 'from-indigo-400 to-blue-500',
-      hoverShadow: 'hover:shadow-indigo-200',
+      icon: <FiBell size={32} />,
+      color: 'from-indigo-500 to-indigo-600',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
       route: '/admintoall'
     },
     {
       title: 'Admin Notices',
-      description: 'View admin notices for faculty',
-      icon: '👀',
-      color: 'from-purple-400 to-indigo-500',
-      hoverShadow: 'hover:shadow-purple-200',
+      description: 'Admin notices for faculty',
+      icon: <FiEye size={32} />,
+      color: 'from-purple-500 to-purple-600',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200',
       route: '/admin-to-faculty'
-    }, 
+    },
     {
       title: 'Manage Subject',
-      description: 'Add Subject for students to upload',
-      icon: '➕',
-      color: 'from-purple-400 to-indigo-500',
-      hoverShadow: 'hover:shadow-purple-200',
+      description: 'Add subjects for students',
+      icon: <FiPlus size={32} />,
+      color: 'from-green-500 to-green-600',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
       route: '/manage-subjects'
     },
     {
       title: 'Manage Events',
-      description: 'Upload drive links with Event titles',
-      icon: '🎊',
-      color: 'from-indigo-400 to-blue-500',
-      hoverShadow: 'hover:shadow-indigo-200',
+      description: 'Upload event links and titles',
+      icon: <MdEventNote size={32} />,
+      color: 'from-pink-500 to-pink-600',
+      bgColor: 'bg-pink-50',
+      borderColor: 'border-pink-200',
       route: '/events'
     },
     {
       title: 'Personal Files',
-      description: 'Upload Class files for Easy access',
-      icon: '📚',
-      color: 'from-indigo-400 to-blue-500',
-      hoverShadow: 'hover:shadow-indigo-200',
+      description: 'Upload class files',
+      icon: <FiFileText size={32} />,
+      color: 'from-cyan-500 to-cyan-600',
+      bgColor: 'bg-cyan-50',
+      borderColor: 'border-cyan-200',
       route: '/personal'
     }
-
   ];
-
-
-  const isDark = theme === 'dark';
-
 
   return (
     <>
       <Header />
 
-
-      <div className={`min-h-screen transition-colors duration-300 ${
-        isDark 
-          ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' 
-          : 'bg-gradient-to-br from-white via-blue-50 to-indigo-100'
-      } py-8 px-4 relative overflow-hidden`}>
-
-
-        {/* Animated Background Blobs */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className={`absolute -top-40 -right-40 w-80 md:w-96 h-80 md:h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob ${
-            isDark ? 'bg-blue-500' : 'bg-blue-200'
-          }`}></div>
-          <div className={`absolute -bottom-40 -left-40 w-80 md:w-96 h-80 md:h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 ${
-            isDark ? 'bg-purple-500' : 'bg-indigo-200'
-          }`}></div>
-          <div className={`absolute top-1/2 left-1/2 w-80 md:w-96 h-80 md:h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000 ${
-            isDark ? 'bg-cyan-500' : 'bg-cyan-200'
-          }`}></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51, 65, 85) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
         </div>
 
-
         {/* Main Content */}
-        <div className={`relative z-10 w-full max-w-6xl mx-auto transition-all duration-1000 ${fadeIn ? 'opacity-100' : 'opacity-0'}`}>
-
-
-          {/* Header with Theme Toggle */}
-          <div className="flex justify-between items-start mb-10 animate-fadeInDown">
-            <div>
-              <h1 className={`text-4xl md:text-5xl font-bold mb-2 ${
-                isDark 
-                  ? 'text-white' 
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent'
-              }`}>
-                👨‍🏫 Teacher Dashboard
-              </h1>
-              <p className={isDark ? 'text-gray-300' : 'text-gray-600'}>
-                Manage students and view announcements
-              </p>
-            </div>
-
-
-            {/* Theme Toggle */}
-            <button
-              onClick={() => setTheme(isDark ? 'light' : 'dark')}
-              className={`px-4 py-2 rounded-full font-semibold transition-all duration-300 transform hover:scale-105 ${
-                isDark
-                  ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-                  : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg'
-              }`}
-            >
-              {isDark ? '☀️ Light' : '🌙 Dark'}
-            </button>
-          </div>
-
-
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          
           {/* Welcome Section */}
-          <div className="mb-10 animate-fadeInDown" style={{ animationDelay: '100ms' }}>
-            <div className={`rounded-3xl shadow-2xl p-6 md:p-10 lg:p-12 border transition-all duration-300 backdrop-blur-xl ${
-              isDark
-                ? 'bg-gray-800/50 border-gray-700/50'
-                : 'bg-white border-blue-100/50'
-            }`}>
+          <div className="mb-12">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 lg:p-10">
               
-              {/* Greeting & Welcome */}
-              <div className="space-y-3 md:space-y-5 mb-8 md:mb-10">
-                <h2 className={`text-4xl md:text-5xl lg:text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600`}>
-                  {getGreeting()}
+              {/* Greeting */}
+              <div className="mb-8">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-blue-600">{greeting.icon}</span>
+                  <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">
+                    {greeting.text}
+                  </h1>
+                </div>
+                <h2 className="text-xl lg:text-2xl text-slate-700 mb-2">
+                  Welcome back, <span className="font-semibold text-blue-600">{teacherData?.name || 'Teacher'}</span>
                 </h2>
-                <h3 className={`text-2xl md:text-3xl lg:text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                  Welcome Back, <span className={`bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent`}>
-                    {teacherData?.name || 'Teacher'}
-                  </span>!
-                </h3>
-                <p className={`text-base md:text-lg leading-relaxed ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>
-                  You're all set to manage your students and stay updated with important announcements
+                <p className="text-slate-600">
+                  Manage your students and stay updated with important announcements.
                 </p>
               </div>
 
-
               {/* Date & Time */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
-                {/* Date */}
-                <div className={`rounded-2xl p-4 md:p-6 transition-all duration-300 hover:shadow-lg ${
-                  isDark
-                    ? 'bg-gradient-to-br from-blue-600/20 to-cyan-600/20 border border-blue-500/30'
-                    : 'bg-gradient-to-br from-blue-50 to-cyan-50 border border-blue-200/50'
-                }`}>
-                  <p className={`text-sm md:text-base font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>📅 Today's Date</p>
-                  <p className={`text-lg md:text-xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{getDayAndDate()}</p>
+                {/* Date Card */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiCalendar className="text-blue-600" size={20} />
+                    <p className="text-sm font-semibold text-slate-600">Today's Date</p>
+                  </div>
+                  <p className="text-lg font-semibold text-slate-900">{getDayAndDate()}</p>
                 </div>
 
-
-                {/* Time */}
-                <div className={`rounded-2xl p-4 md:p-6 transition-all duration-300 hover:shadow-lg ${
-                  isDark
-                    ? 'bg-gradient-to-br from-indigo-600/20 to-blue-600/20 border border-indigo-500/30'
-                    : 'bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-200/50'
-                }`}>
-                  <p className={`text-sm md:text-base font-semibold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-600'}`}>⏰ Current Time</p>
-                  <p className={`text-lg md:text-xl font-bold font-mono ${isDark ? 'text-white' : 'text-gray-900'}`}>{getTimeString()}</p>
+                {/* Time Card */}
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-center gap-3 mb-2">
+                    <FiClock className="text-blue-600" size={20} />
+                    <p className="text-sm font-semibold text-slate-600">Current Time</p>
+                  </div>
+                  <p className="text-lg font-semibold text-slate-900 font-mono">{getTimeString()}</p>
                 </div>
               </div>
             </div>
           </div>
 
-
-          {/* Quick Shortcuts Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {shortcuts.map((shortcut, index) => (
-              <button
-                key={index}
-                onClick={() => navigate(shortcut.route)}
-                className={`group relative rounded-3xl shadow-lg border p-6 md:p-8 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeInUp ${
-                  isDark
-                    ? 'bg-gray-800/50 border-gray-700/50 hover:border-blue-500/50'
-                    : 'bg-white border-blue-100/50 hover:border-blue-400/50'
-                }`}
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
-                {/* Gradient Background on Hover */}
-                <div className={`absolute inset-0 bg-gradient-to-br ${shortcut.color} rounded-3xl opacity-0 group-hover:opacity-5 transition-opacity duration-300`}></div>
-
-
-                {/* Content */}
-                <div className="relative z-10 text-center">
-                  {/* Icon */}
-                  <div className={`text-5xl md:text-6xl mb-4 md:mb-6 transition-all duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                    {shortcut.icon}
+          {/* Quick Actions Grid */}
+          <div>
+            <h3 className="text-xl font-bold text-slate-900 mb-6">Quick Actions</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {shortcuts.map((shortcut, index) => (
+                <button
+                  key={index}
+                  onClick={() => navigate(shortcut.route)}
+                  className="group bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-lg hover:border-blue-300 transition-all duration-300 text-left"
+                >
+                  {/* Icon Container */}
+                  <div className={`${shortcut.bgColor} ${shortcut.borderColor} border rounded-xl p-4 mb-4 inline-flex group-hover:scale-110 transition-transform duration-300`}>
+                    <span className="text-slate-700">
+                      {shortcut.icon}
+                    </span>
                   </div>
 
-
                   {/* Title */}
-                  <h4 className={`text-lg md:text-xl lg:text-2xl font-bold mb-2 md:mb-3 ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                     {shortcut.title}
-                  </h4>
-
+                  </h3>
 
                   {/* Description */}
-                  <p className={`text-sm md:text-base mb-4 md:mb-6 ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
+                  <p className="text-sm text-slate-600 mb-4">
                     {shortcut.description}
                   </p>
 
-
-                  {/* CTA Arrow */}
-                  <div className={`inline-block px-6 py-2 md:px-8 md:py-3 bg-gradient-to-r ${shortcut.color} text-white font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0 text-sm md:text-base`}>
-                    Access →
+                  {/* Arrow */}
+                  <div className="flex items-center gap-2 text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span>Open</span>
+                    <FiArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
                   </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
 
-
-          {/* Footer Note */}
-          <div className="mt-12 md:mt-16 text-center animate-fadeInUp" style={{ animationDelay: '450ms' }}>
-            <p className={`text-sm md:text-base ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-              💡 Keep your students engaged and informed with timely updates
+          {/* Info Note */}
+          <div className="mt-12 text-center">
+            <p className="text-slate-600 text-sm">
+              Keep your students engaged and informed with timely updates and resources.
             </p>
           </div>
         </div>
       </div>
-
-
-      {/* Animations */}
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes fadeInDown {
-          from {
-            opacity: 0;
-            transform: translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeInDown {
-          animation: fadeInDown 0.6s ease-out;
-        }
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fadeInUp {
-          animation: fadeInUp 0.6s ease-out forwards;
-        }
-      `}</style>
     </>
   );
 };
-
 
 export default TeacherDashboard;

@@ -1,29 +1,83 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { 
+  FiBell, 
+  FiFolder, 
+  FiDownload, 
+  FiEye, 
+  FiX,
+  FiCalendar,
+  FiClock,
+  FiFileText,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiChevronDown
+} from 'react-icons/fi';
+import { 
+  AiOutlineFilePdf, 
+  AiOutlineFileWord, 
+  AiOutlineFileExcel, 
+  AiOutlineFileImage,
+  AiOutlineFile
+} from 'react-icons/ai';
+import { 
+  MdHolidayVillage,
+  MdSchool,
+  MdWork,
+  MdEventNote,
+  MdEventAvailable
+} from 'react-icons/md';
 import Header from '../components/Header';
 
-
 const NOTICE_TYPE_CONFIG = {
-  'general': { label: 'General', color: 'from-blue-400 to-blue-600', icon: '📁' },
-  'attendance': { label: 'Attendance', color: 'from-yellow-400 to-yellow-600', icon: '🗂️' },
-  'holiday': { label: 'Holiday', color: 'from-pink-400 to-pink-600', icon: '🏖️' },
-  'exam': { label: 'Exam', color: 'from-cyan-400 to-cyan-600', icon: '📚' },
-  'placement': { label: 'Placement', color: 'from-green-400 to-green-600', icon: '💼' }
+  'general': { 
+    label: 'General', 
+    color: 'from-blue-500 to-blue-600', 
+    icon: <FiBell size={32} />,
+    bgColor: 'bg-blue-50',
+    borderColor: 'border-blue-200'
+  },
+  'attendance': { 
+    label: 'Attendance', 
+    color: 'from-yellow-500 to-yellow-600', 
+    icon: <MdEventAvailable size={32} />,
+    bgColor: 'bg-yellow-50',
+    borderColor: 'border-yellow-200'
+  },
+  'holiday': { 
+    label: 'Holiday', 
+    color: 'from-pink-500 to-pink-600', 
+    icon: <MdHolidayVillage size={32} />,
+    bgColor: 'bg-pink-50',
+    borderColor: 'border-pink-200'
+  },
+  'exam': { 
+    label: 'Exam', 
+    color: 'from-cyan-500 to-cyan-600', 
+    icon: <MdSchool size={32} />,
+    bgColor: 'bg-cyan-50',
+    borderColor: 'border-cyan-200'
+  },
+  'placement': { 
+    label: 'Placement', 
+    color: 'from-green-500 to-green-600', 
+    icon: <MdWork size={32} />,
+    bgColor: 'bg-green-50',
+    borderColor: 'border-green-200'
+  }
 };
 
-const ITEMS_PER_PAGE = 9; // Load 9 items at a time
+const ITEMS_PER_PAGE = 9;
 
 const getFileIcon = (contentType) => {
-  if (!contentType) return '📦';
+  if (!contentType) return <AiOutlineFile size={40} className="text-slate-400" />;
   const type = String(contentType).toLowerCase();
-  if (type.includes('pdf')) return '📕';
-  if (type.includes('image')) return '🖼️';
-  if (type.includes('word') || type.includes('document')) return '📘';
-  if (type.includes('sheet') || type.includes('excel')) return '📊';
-  if (type.includes('text')) return '📄';
-  if (type.includes('video')) return '🎬';
-  return '📦';
+  if (type.includes('pdf')) return <AiOutlineFilePdf size={40} className="text-red-500" />;
+  if (type.includes('image')) return <AiOutlineFileImage size={40} className="text-purple-500" />;
+  if (type.includes('word') || type.includes('document')) return <AiOutlineFileWord size={40} className="text-blue-600" />;
+  if (type.includes('sheet') || type.includes('excel')) return <AiOutlineFileExcel size={40} className="text-green-600" />;
+  if (type.includes('text')) return <FiFileText size={40} className="text-slate-600" />;
+  return <AiOutlineFile size={40} className="text-slate-400" />;
 };
-
 
 const formatDateTime = (dateString) => {
   try {
@@ -40,6 +94,53 @@ const formatDateTime = (dateString) => {
   }
 };
 
+// Professional Loading Component
+const LoadingSpinner = ({ size = 'default', text = '' }) => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="relative">
+        {/* Outer rotating ring */}
+        <div className={`${size === 'small' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full border-4 border-slate-200`}></div>
+        
+        {/* Animated gradient ring */}
+        <div className={`absolute inset-0 ${size === 'small' ? 'w-12 h-12' : 'w-16 h-16'} rounded-full border-4 border-transparent border-t-blue-600 border-r-blue-500 animate-spin`}></div>
+        
+        {/* Inner pulsing dot */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className={`${size === 'small' ? 'w-3 h-3' : 'w-4 h-4'} bg-blue-600 rounded-full animate-pulse`}></div>
+        </div>
+      </div>
+      
+      {text && (
+        <p className={`mt-4 text-slate-600 font-medium ${size === 'small' ? 'text-sm' : 'text-base'} animate-pulse`}>
+          {text}
+        </p>
+      )}
+    </div>
+  );
+};
+
+// Alternative: Document Loading Animation
+const DocumentLoadingAnimation = () => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="relative w-20 h-24 mb-4">
+        {/* Document icon animation */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg transform transition-all duration-300">
+          <div className="absolute top-0 right-0 w-0 h-0 border-l-[20px] border-l-transparent border-t-[20px] border-t-white rounded-tr-lg"></div>
+          
+          {/* Animated lines */}
+          <div className="absolute top-8 left-3 right-3 space-y-2">
+            <div className="h-1.5 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '0ms' }}></div>
+            <div className="h-1.5 bg-blue-400 rounded animate-pulse" style={{ animationDelay: '150ms' }}></div>
+            <div className="h-1.5 bg-blue-400 rounded w-3/4 animate-pulse" style={{ animationDelay: '300ms' }}></div>
+          </div>
+        </div>
+      </div>
+      <p className="text-slate-600 font-medium animate-pulse">Loading notices...</p>
+    </div>
+  );
+};
 
 const AdminToTeacher = () => {
   const [documents, setDocuments] = useState([]);
@@ -47,22 +148,17 @@ const AdminToTeacher = () => {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [theme, setTheme] = useState('light');
   const [selectedFolder, setSelectedFolder] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [showPreview, setShowPreviewModal] = useState(false);
-  const [previewLoading, setPreviewLoading] = useState(false);
   const [dynamicFolders, setDynamicFolders] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-
 
   useEffect(() => {
     fetchDocuments();
   }, []);
 
-
-  // Fetch only metadata first (without file data)
   const fetchDocuments = async () => {
     try {
       setLoading(true);
@@ -75,9 +171,7 @@ const AdminToTeacher = () => {
         }
       });
 
-
       const data = await response.json();
-
 
       if (!response.ok) {
         setMessage({ type: 'error', text: data.message || 'Error fetching notices' });
@@ -87,26 +181,24 @@ const AdminToTeacher = () => {
         const docs = Array.isArray(data.files) ? data.files : [];
         setDocuments(docs);
 
-
-        // Generate dynamic folders
         const distinctTypes = new Set();
         docs.forEach(doc => {
           const noticeType = doc.notice_type || 'general';
           distinctTypes.add(noticeType);
         });
 
-
         const folders = Array.from(distinctTypes).map(type => ({
           value: type,
           label: NOTICE_TYPE_CONFIG[type]?.label || type.charAt(0).toUpperCase() + type.slice(1),
-          color: NOTICE_TYPE_CONFIG[type]?.color || 'from-gray-400 to-gray-600',
-          icon: NOTICE_TYPE_CONFIG[type]?.icon || '📁'
+          color: NOTICE_TYPE_CONFIG[type]?.color || 'from-gray-500 to-gray-600',
+          icon: NOTICE_TYPE_CONFIG[type]?.icon || <FiFolder size={32} />,
+          bgColor: NOTICE_TYPE_CONFIG[type]?.bgColor || 'bg-gray-50',
+          borderColor: NOTICE_TYPE_CONFIG[type]?.borderColor || 'border-gray-200'
         })).sort((a, b) => {
           if (a.value === 'general') return -1;
           if (b.value === 'general') return 1;
           return a.label.localeCompare(b.label);
         });
-
 
         setDynamicFolders(folders);
         
@@ -123,14 +215,11 @@ const AdminToTeacher = () => {
     }
   };
 
-
-  // Load documents progressively when folder changes
   useEffect(() => {
     if (selectedFolder) {
       loadInitialDocs();
     }
   }, [selectedFolder]);
-
 
   const loadInitialDocs = () => {
     setCurrentPage(1);
@@ -140,13 +229,11 @@ const AdminToTeacher = () => {
     setHasMore(filtered.length > ITEMS_PER_PAGE);
   };
 
-
   const loadMoreDocs = useCallback(() => {
     if (loadingMore || !hasMore) return;
     
     setLoadingMore(true);
     
-    // Simulate network delay for smooth UX
     setTimeout(() => {
       const filtered = documents.filter(doc => (doc.notice_type || 'general') === selectedFolder);
       const nextPage = currentPage + 1;
@@ -161,14 +248,12 @@ const AdminToTeacher = () => {
     }, 300);
   }, [currentPage, selectedFolder, documents, loadingMore, hasMore]);
 
-
   const handleDownload = async (doc, index) => {
     try {
       if (!doc.fileData) {
-        setMessage({ type: 'error', text: '❌ File data not available' });
+        setMessage({ type: 'error', text: 'File data not available' });
         return;
       }
-
 
       const byteCharacters = atob(doc.fileData);
       const byteNumbers = new Array(byteCharacters.length);
@@ -178,11 +263,9 @@ const AdminToTeacher = () => {
       const byteArray = new Uint8Array(byteNumbers);
       const blob = new Blob([byteArray], { type: doc.contentType || 'application/octet-stream' });
 
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-
 
       let extension = '.bin';
       const contentType = String(doc.contentType || '').toLowerCase();
@@ -192,38 +275,32 @@ const AdminToTeacher = () => {
       else if (contentType.includes('sheet')) extension = '.xlsx';
       else if (contentType.includes('text')) extension = '.txt';
 
-
-      a.download = `notice_${index}${extension}`;
+      a.download = `notice_${index + 1}${extension}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
 
-
-      setMessage({ type: 'success', text: '✅ Downloaded!' });
+      setMessage({ type: 'success', text: 'File downloaded successfully!' });
       setTimeout(() => setMessage({ type: '', text: '' }), 2000);
     } catch (error) {
-      setMessage({ type: 'error', text: '❌ Download failed' });
+      setMessage({ type: 'error', text: 'Download failed' });
     }
   };
 
-
   const handlePreview = (doc) => {
-    setPreviewLoading(true);
     setSelectedDoc(doc);
-    setTimeout(() => {
-      setShowPreviewModal(true);
-      setPreviewLoading(false);
-    }, 200);
+    setShowPreviewModal(true);
   };
-
 
   const renderPreview = (doc) => {
     if (!doc.fileData) {
       return (
         <div className="p-12 text-center">
-          <p className="text-6xl mb-4">{getFileIcon(doc.contentType)}</p>
-          <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>Unable to load preview</p>
+          <div className="mb-4 flex justify-center">
+            {getFileIcon(doc.contentType)}
+          </div>
+          <p className="text-slate-500">Unable to load preview</p>
         </div>
       );
     }
@@ -233,9 +310,8 @@ const AdminToTeacher = () => {
         <img
           src={`data:${doc.contentType};base64,${doc.fileData}`}
           alt="Preview"
-          className="max-w-full max-h-96 rounded-2xl"
+          className="max-w-full max-h-96 rounded-xl shadow-lg"
           loading="lazy"
-          onError={() => setMessage({ type: 'error', text: '❌ Image preview failed' })}
         />
       );
     }
@@ -243,305 +319,285 @@ const AdminToTeacher = () => {
       return (
         <iframe
           src={`data:${doc.contentType};base64,${doc.fileData}`}
-          className="w-full h-96 rounded-2xl"
+          className="w-full h-96 rounded-xl shadow-lg"
           title="PDF Preview"
           loading="lazy"
-          onError={() => setMessage({ type: 'error', text: '❌ PDF preview failed' })}
         />
       );
     }
     return (
       <div className="p-12 text-center">
-        <p className="text-6xl mb-4">{getFileIcon(doc.contentType)}</p>
-        <p className={theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}>Preview not available for this file type</p>
+        <div className="mb-4 flex justify-center">
+          {getFileIcon(doc.contentType)}
+        </div>
+        <p className="text-slate-500">Preview not available for this file type</p>
       </div>
     );
   };
 
-
-  const isDark = theme === 'dark';
   const currentFolderInfo = dynamicFolders.find(f => f.value === selectedFolder);
   const totalDocsInFolder = documents.filter(doc => (doc.notice_type || 'general') === selectedFolder).length;
-
 
   return (
     <>
       <Header />
-      <div className={`min-h-screen transition-colors duration-300 ${
-        isDark
-          ? 'bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900'
-          : 'bg-gradient-to-br from-white via-blue-50 to-indigo-100'
-      } py-8 px-4 relative overflow-hidden`}>
-
-
-        {/* Background blobs */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className={`absolute -top-40 -right-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob ${isDark ? 'bg-blue-500' : 'bg-blue-200'}`}></div>
-          <div className={`absolute -bottom-40 -left-40 w-96 h-96 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000 ${isDark ? 'bg-purple-500' : 'bg-indigo-200'}`}></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+        
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51, 65, 85) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
         </div>
 
-
         <div className="relative z-10 max-w-7xl mx-auto">
+          
           {/* Page Header */}
-          <div className="flex justify-between items-center mb-10">
-            <h1 className={`text-4xl md:text-5xl font-bold ${isDark ? "text-white" : "bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent"}`}>
-              🗂️ All Notices
-            </h1>
-            <button
-              onClick={() => setTheme(isDark ? "light" : "dark")}
-              className={`px-4 py-2 rounded-full font-semibold transition-all ${
-                isDark
-                  ? 'bg-white/10 border border-white/20 text-white hover:bg-white/20'
-                  : 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:shadow-lg'
-              }`}
-            >
-              {isDark ? "☀️" : "🌙"}
-            </button>
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <FiBell size={32} className="text-blue-600" />
+              <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">
+                All Notices
+              </h1>
+            </div>
+            <p className="text-slate-600">Browse notices organized by category</p>
           </div>
-
 
           {/* Alert Message */}
           {message.text && (
-            <div className={`mb-6 p-4 rounded-2xl border backdrop-blur-xl animate-slideDown ${
+            <div className={`mb-6 p-4 rounded-xl border-2 flex items-center gap-3 ${
               message.type === 'success'
-                ? isDark
-                  ? 'bg-green-500/20 border-green-500/50 text-green-300'
-                  : 'bg-green-100 border-green-300 text-green-800'
-                : isDark
-                  ? 'bg-red-500/20 border-red-500/50 text-red-300'
-                  : 'bg-red-100 border-red-300 text-red-800'
+                ? 'bg-green-50 border-green-500 text-green-800'
+                : 'bg-red-50 border-red-500 text-red-800'
             }`}>
-              <p className="text-center font-semibold">{message.text}</p>
+              {message.type === 'success' ? (
+                <FiCheckCircle size={20} className="flex-shrink-0" />
+              ) : (
+                <FiAlertCircle size={20} className="flex-shrink-0" />
+              )}
+              <p className="font-semibold">{message.text}</p>
             </div>
           )}
 
-
-          {/* Dynamic Folder Tabs */}
+          {/* Folder Tabs */}
           {dynamicFolders.length > 0 && (
-            <div className="flex flex-wrap gap-8 justify-center mt-8 mb-8 px-4">
-              {dynamicFolders.map((folder) => {
-                const count = documents.filter(d => (d.notice_type || 'general') === folder.value).length;
-                return (
-                  <button
-                    key={folder.value}
-                    onClick={() => setSelectedFolder(folder.value)}
-                    className={`flex flex-col items-center px-8 py-6 rounded-3xl group shadow-2xl border-2 transition-all duration-300 ${
-                      selectedFolder === folder.value
-                        ? `ring-4 ring-cyan-400 scale-105 border-cyan-400 bg-gradient-to-br ${folder.color}`
-                        : `border-transparent bg-gradient-to-br ${folder.color} opacity-70 hover:opacity-100`
-                    }`}
-                  >
-                    <span className="text-5xl md:text-6xl mb-2 drop-shadow">{folder.icon}</span>
-                    <span className="font-bold text-white drop-shadow text-sm md:text-base">{folder.label}</span>
-                    <span className="mt-2 px-3 py-1 bg-black/20 text-xs rounded-full text-white font-bold">
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-
-          {/* Folder Content */}
-          <div className="mt-8">
-            {loading ? (
-              <div className="text-center py-16">
-                <div className="animate-spin h-16 w-16 border-4 border-blue-500 border-t-transparent rounded-full mb-5 mx-auto"></div>
-                <p className={isDark ? "text-gray-300" : "text-gray-500"}>Loading notices...</p>
-              </div>
-            ) : displayedDocs.length > 0 ? (
-              <div>
-                {currentFolderInfo && (
-                  <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-blue-500 to-cyan-500">
-                    <p className="text-white font-bold text-lg">
-                      {currentFolderInfo.icon} {currentFolderInfo.label} (Showing {displayedDocs.length} of {totalDocsInFolder})
-                    </p>
-                  </div>
-                )}
-                
-                {/* Progressive grid rendering */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {displayedDocs.map((doc, idx) => {
-                    const { date, time } = formatDateTime(doc.createdAt || new Date());
-                    const desc = doc.description || 'Notice';
-                    const displayDesc = desc.substring(0, 60) + (desc.length > 60 ? '...' : '');
-
-
-                    return (
-                      <div
-                        key={`${doc._id}-${idx}`}
-                        className={`rounded-2xl p-6 border-2 transition-all duration-300 shadow-lg hover:shadow-xl animate-fadeInUp ${
-                          isDark
-                            ? 'bg-gray-800/70 border-gray-700 hover:border-cyan-400'
-                            : 'bg-white border-blue-200 hover:border-cyan-400'
-                        }`}
-                        style={{ animationDelay: `${(idx % ITEMS_PER_PAGE) * 50}ms` }}
-                      >
-                        <div className="flex items-start mb-4 gap-3">
-                          <span className="text-4xl flex-shrink-0">{getFileIcon(doc.contentType)}</span>
-                          <div className="flex-1 min-w-0">
-                            <div className={`font-bold text-sm md:text-base truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
-                              {displayDesc}
-                            </div>
-                            <div className={`text-xs mt-1 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                              {date} • {time}
-                            </div>
-                          </div>
-                        </div>
-
-
-                        <div className="flex gap-2 mt-4">
-                          <button
-                            onClick={() => handlePreview(doc)}
-                            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-sm transition hover:scale-105 shadow-lg active:scale-95"
-                          >
-                            👁️ View
-                          </button>
-                          <button
-                            onClick={() => handleDownload(doc, idx)}
-                            className="flex-1 px-3 py-2 rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold text-sm transition hover:scale-105 shadow-lg active:scale-95"
-                          >
-                            💾 Get
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-
-                {/* Load More Button */}
-                {hasMore && (
-                  <div className="text-center mt-8">
+            <div className="mb-8">
+              <h2 className="text-lg font-bold text-slate-900 mb-4">Categories</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+                {dynamicFolders.map((folder) => {
+                  const count = documents.filter(d => (d.notice_type || 'general') === folder.value).length;
+                  const isActive = selectedFolder === folder.value;
+                  
+                  return (
                     <button
-                      onClick={loadMoreDocs}
-                      disabled={loadingMore}
-                      className={`px-8 py-4 rounded-xl font-bold text-white transition-all ${
-                        loadingMore
-                          ? 'bg-gray-400 cursor-not-allowed'
-                          : 'bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 hover:shadow-xl transform hover:scale-105'
+                      key={folder.value}
+                      onClick={() => setSelectedFolder(folder.value)}
+                      className={`p-6 rounded-2xl border-2 transition-all ${
+                        isActive
+                          ? `bg-gradient-to-br ${folder.color} text-white border-transparent shadow-lg scale-105`
+                          : `bg-white ${folder.borderColor} hover:shadow-md hover:scale-102`
                       }`}
                     >
-                      {loadingMore ? (
-                        <span className="flex items-center gap-2">
-                          <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                          Loading more...
-                        </span>
-                      ) : (
-                        `⬇️ Load More (${totalDocsInFolder - displayedDocs.length} remaining)`
-                      )}
+                      <div className={`mb-3 flex justify-center ${isActive ? 'text-white' : ''}`}>
+                        {folder.icon}
+                      </div>
+                      <p className={`font-bold text-sm mb-2 ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                        {folder.label}
+                      </p>
+                      <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold ${
+                        isActive 
+                          ? 'bg-white/20 text-white' 
+                          : `${folder.bgColor} text-slate-700`
+                      }`}>
+                        {count} {count === 1 ? 'notice' : 'notices'}
+                      </span>
                     </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Content Area */}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-32">
+              <DocumentLoadingAnimation />
+            </div>
+          ) : displayedDocs.length > 0 ? (
+            <div>
+              {/* Folder Header */}
+              {currentFolderInfo && (
+                <div className="mb-6 p-4 rounded-xl bg-white border-2 border-slate-200 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="text-blue-600">{currentFolderInfo.icon}</div>
+                    <div>
+                      <p className="font-bold text-slate-900">{currentFolderInfo.label}</p>
+                      <p className="text-sm text-slate-600">
+                        Showing {displayedDocs.length} of {totalDocsInFolder} notices
+                      </p>
+                    </div>
                   </div>
-                )}
+                </div>
+              )}
+              
+              {/* Notices Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                {displayedDocs.map((doc, idx) => {
+                  const { date, time } = formatDateTime(doc.createdAt || new Date());
+                  const desc = doc.description || 'Notice';
+                  const displayDesc = desc.substring(0, 80) + (desc.length > 80 ? '...' : '');
+
+                  return (
+                    <div
+                      key={`${doc._id}-${idx}`}
+                      className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md hover:border-blue-300 transition-all"
+                    >
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className="flex-shrink-0">
+                          {getFileIcon(doc.contentType)}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-slate-900 text-sm line-clamp-2 mb-2">
+                            {displayDesc}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-slate-600">
+                            <span className="flex items-center gap-1">
+                              <FiCalendar size={12} />
+                              {date}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <FiClock size={12} />
+                              {time}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handlePreview(doc)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm transition-all"
+                        >
+                          <FiEye size={16} />
+                          View
+                        </button>
+                        <button
+                          onClick={() => handleDownload(doc, idx)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold text-sm transition-all"
+                        >
+                          <FiDownload size={16} />
+                          Download
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ) : (
-              <div className={`py-16 text-center rounded-3xl border-2 ${isDark ? 'bg-gray-800/50 border-gray-700' : 'bg-blue-50 border-blue-200'}`}>
-                <span className="text-6xl">📂</span>
-                <p className={`mt-4 font-semibold text-lg ${isDark ? "text-gray-200" : "text-gray-600"}`}>
-                  No notices found
-                </p>
-              </div>
-            )}
-          </div>
+
+              {/* Load More Button */}
+              {hasMore && (
+                <div className="text-center">
+                  <button
+                    onClick={loadMoreDocs}
+                    disabled={loadingMore}
+                    className={`inline-flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-white transition-all ${
+                      loadingMore
+                        ? 'bg-slate-400 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg hover:shadow-xl transform hover:scale-105'
+                    }`}
+                  >
+                    {loadingMore ? (
+                      <>
+                        <LoadingSpinner size="small" />
+                        <span>Loading...</span>
+                      </>
+                    ) : (
+                      <>
+                        <FiChevronDown size={20} />
+                        Load More ({totalDocsInFolder - displayedDocs.length} remaining)
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-32 bg-white rounded-2xl border-2 border-slate-200">
+              <FiFolder size={64} className="mx-auto mb-4 text-slate-300" />
+              <p className="text-slate-600 text-lg font-semibold mb-2">No notices found</p>
+              <p className="text-sm text-slate-500">Check back later for updates</p>
+            </div>
+          )}
         </div>
       </div>
 
-
       {/* Preview Modal */}
       {showPreview && selectedDoc && (
-        <div className={`fixed inset-0 flex items-center justify-center z-50 p-4 animate-fadeIn ${
-          isDark ? 'bg-black/70' : 'bg-black/60'
-        }`}>
-          <div className={`rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border ${
-            isDark
-              ? 'bg-gray-900 border-gray-700'
-              : 'bg-white border-blue-100'
-          }`}>
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto border border-slate-200">
+            
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-blue-500 to-cyan-500 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
-              <h2 className="text-xl md:text-2xl font-bold text-white">📄 Preview</h2>
+            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between sticky top-0 z-10 rounded-t-2xl">
+              <div className="flex items-center gap-2">
+                <FiEye size={24} className="text-white" />
+                <h2 className="text-xl font-bold text-white">Notice Preview</h2>
+              </div>
               <button
                 onClick={() => setShowPreviewModal(false)}
                 className="text-white hover:bg-white/20 p-2 rounded-lg transition"
               >
-                ✕
+                <FiX size={24} />
               </button>
             </div>
 
-
             {/* Modal Content */}
-            <div className="p-6 md:p-8">
-              <div className={`mb-6 p-4 rounded-xl ${isDark ? "bg-gray-800/50" : "bg-blue-50"}`}>
-                <p className={`text-xs font-bold mb-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>📝 Description</p>
-                <p className={`text-sm leading-relaxed ${isDark ? 'text-gray-100' : 'text-gray-900'}`}>
+            <div className="p-6">
+              
+              {/* Description */}
+              <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <FiFileText size={16} className="text-slate-600" />
+                  <p className="font-bold text-sm text-slate-700">Description</p>
+                </div>
+                <p className="text-sm text-slate-700 leading-relaxed">
                   {selectedDoc.description || 'No description'}
                 </p>
               </div>
 
-
-              <div className={`mb-6 p-4 rounded-xl ${isDark ? "bg-gray-800/50" : "bg-blue-50"}`}>
-                <p className={`text-xs font-bold mb-1 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>📅 Date & Time</p>
-                <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>
+              {/* Date & Time */}
+              <div className="mb-6 p-4 rounded-xl bg-slate-50 border border-slate-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <FiCalendar size={16} className="text-slate-600" />
+                  <p className="font-bold text-sm text-slate-700">Date & Time</p>
+                </div>
+                <p className="text-sm text-slate-900">
                   {formatDateTime(selectedDoc.createdAt).date} at {formatDateTime(selectedDoc.createdAt).time}
                 </p>
               </div>
 
-
-              <div className={`bg-gray-200 dark:bg-gray-800/50 rounded-2xl p-6 flex items-center justify-center mb-6 min-h-64`}>
-                {previewLoading ? (
-                  <div className="text-center">
-                    <div className="animate-spin h-12 w-12 border-4 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
-                    <p className={isDark ? 'text-gray-400' : 'text-gray-500'}>Loading preview...</p>
-                  </div>
-                ) : (
-                  renderPreview(selectedDoc)
-                )}
+              {/* Preview */}
+              <div className="rounded-xl bg-slate-100 p-6 flex items-center justify-center min-h-64 mb-6">
+                {renderPreview(selectedDoc)}
               </div>
 
-
+              {/* Download Button */}
               <button
                 onClick={() => {
                   handleDownload(selectedDoc, 0);
                   setShowPreviewModal(false);
                 }}
-                className="w-full py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white font-bold rounded-lg transition active:scale-95"
+                className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold bg-green-600 hover:bg-green-700 text-white transition-all"
               >
-                💾 Download File
+                <FiDownload size={20} />
+                Download File
               </button>
             </div>
           </div>
         </div>
       )}
-
-
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animate-slideDown { animation: slideDown 0.3s ease-out; }
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        .animate-fadeIn { animation: fadeIn 0.3s ease-out; }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
-      `}</style>
     </>
   );
 };
-
 
 export default AdminToTeacher;

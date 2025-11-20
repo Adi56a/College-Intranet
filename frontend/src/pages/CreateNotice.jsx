@@ -1,5 +1,46 @@
 import React, { useState, useRef } from 'react';
+import { 
+  FiUpload,
+  FiFile,
+  FiX,
+  FiCheckCircle,
+  FiAlertCircle,
+  FiFileText,
+  FiInfo,
+  FiLock,
+  FiZap
+} from 'react-icons/fi';
+import { 
+  AiOutlineFilePdf, 
+  AiOutlineFileWord, 
+  AiOutlineFileExcel, 
+  AiOutlineFileImage,
+  AiOutlineFile
+} from 'react-icons/ai';
+import { 
+  MdHolidayVillage,
+  MdSchool,
+  MdWork,
+  MdEventNote,
+  MdEventAvailable
+} from 'react-icons/md';
 import Header from '../components/Header';
+
+// Professional Loading Component
+const LoadingSpinner = () => {
+  return (
+    <div className="inline-flex items-center gap-2">
+      <div className="relative w-5 h-5">
+        <div className="absolute inset-0 rounded-full border-2 border-white/30"></div>
+        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-white border-r-white animate-spin"></div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+        </div>
+      </div>
+      <span>Uploading...</span>
+    </div>
+  );
+};
 
 const CreateNotice = () => {
   const [file, setFile] = useState(null);
@@ -7,36 +48,53 @@ const CreateNotice = () => {
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
-  const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-  const ALLOWED_TYPES = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'text/plain', 'image/jpeg', 'image/png'];
+  const ALLOWED_TYPES = [
+    'application/pdf', 
+    'application/msword', 
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+    'application/vnd.ms-excel', 
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 
+    'text/plain', 
+    'image/jpeg', 
+    'image/png'
+  ];
 
   const noticeTypes = [
-    { value: 'general', label: 'General', icon: '📋' },
-    { value: 'attendance', label: 'Attendance', icon: '📝' },
-    { value: 'holiday', label: 'Holiday', icon: '🎉' },
-    { value: 'exam', label: 'Exam', icon: '📚' },
-    { value: 'placement', label: 'Placement', icon: '💼' }
+    { value: 'general', label: 'General', icon: <MdEventNote size={20} /> },
+    { value: 'attendance', label: 'Attendance', icon: <MdEventAvailable size={20} /> },
+    { value: 'holiday', label: 'Holiday', icon: <MdHolidayVillage size={20} /> },
+    { value: 'exam', label: 'Exam', icon: <MdSchool size={20} /> },
+    { value: 'placement', label: 'Placement', icon: <MdWork size={20} /> }
   ];
+
+  const getFileIcon = (fileType) => {
+    if (!fileType) return <AiOutlineFile size={48} className="text-slate-400" />;
+    const type = fileType.toLowerCase();
+    if (type.includes('pdf')) return <AiOutlineFilePdf size={48} className="text-red-500" />;
+    if (type.includes('word') || type.includes('document')) return <AiOutlineFileWord size={48} className="text-blue-600" />;
+    if (type.includes('sheet') || type.includes('excel')) return <AiOutlineFileExcel size={48} className="text-green-600" />;
+    if (type.includes('image')) return <AiOutlineFileImage size={48} className="text-purple-500" />;
+    if (type.includes('text')) return <FiFileText size={48} className="text-slate-600" />;
+    return <AiOutlineFile size={48} className="text-slate-400" />;
+  };
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     
-    if (!selectedFile) {
-      return;
-    }
+    if (!selectedFile) return;
 
     // Validate file size
     if (selectedFile.size > MAX_FILE_SIZE) {
-      setMessage({ type: 'error', text: '📦 File size must be less than 10MB' });
+      setMessage({ type: 'error', text: 'File size must be less than 10MB' });
       return;
     }
 
     // Validate file type
     if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-      setMessage({ type: 'error', text: '❌ File type not allowed. Please upload PDF, Word, Excel, Text, or Image files.' });
+      setMessage({ type: 'error', text: 'File type not allowed. Please upload PDF, Word, Excel, Text, or Image files.' });
       return;
     }
 
@@ -70,22 +128,22 @@ const CreateNotice = () => {
 
     // Validation
     if (!file) {
-      setMessage({ type: 'error', text: '📁 Please select a file to upload' });
+      setMessage({ type: 'error', text: 'Please select a file to upload' });
       return;
     }
 
     if (!noticeType) {
-      setMessage({ type: 'error', text: '🏷️ Please select a notice type' });
+      setMessage({ type: 'error', text: 'Please select a notice type' });
       return;
     }
 
     if (!description.trim()) {
-      setMessage({ type: 'error', text: '📝 Description is required' });
+      setMessage({ type: 'error', text: 'Description is required' });
       return;
     }
 
     if (description.trim().length < 10) {
-      setMessage({ type: 'error', text: '📝 Description must be at least 10 characters' });
+      setMessage({ type: 'error', text: 'Description must be at least 10 characters' });
       return;
     }
 
@@ -109,13 +167,12 @@ const CreateNotice = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        setMessage({ type: 'error', text: `❌ ${data.message || 'Error uploading file'}` });
+        setMessage({ type: 'error', text: data.message || 'Error uploading file' });
       } else {
-        setMessage({ type: 'success', text: '✅ File uploaded successfully!' });
+        setMessage({ type: 'success', text: 'File uploaded successfully!' });
         setFile(null);
         setNoticeType('general');
         setDescription('');
-        setUploadProgress(0);
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
@@ -123,28 +180,16 @@ const CreateNotice = () => {
       }
     } catch (error) {
       console.error('Error:', error);
-      setMessage({ type: 'error', text: '🌐 Network error. Please try again.' });
+      setMessage({ type: 'error', text: 'Network error. Please try again.' });
     } finally {
       setLoading(false);
-      setUploadProgress(0);
     }
-  };
-
-  const getFileIcon = () => {
-    if (!file) return '📄';
-    const type = file.type;
-    if (type.includes('pdf')) return '📕';
-    if (type.includes('word') || type.includes('document')) return '📘';
-    if (type.includes('sheet')) return '📊';
-    if (type.includes('image')) return '🖼️';
-    if (type.includes('text')) return '📄';
-    return '📦';
   };
 
   const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB'];
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
   };
@@ -153,49 +198,61 @@ const CreateNotice = () => {
     <>
       <Header />
       
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 py-8 px-4 relative overflow-hidden">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
         
-        {/* Animated Background */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 w-80 h-80 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
+        {/* Subtle Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, rgb(51, 65, 85) 1px, transparent 0)`,
+            backgroundSize: '40px 40px'
+          }}></div>
         </div>
 
         <div className="relative z-10 max-w-3xl mx-auto">
           
           {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-5xl font-bold text-white mb-3 drop-shadow-lg">📤 Upload File</h1>
-            <p className="text-lg text-gray-300">Share important documents with your institution</p>
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-2">
+              <FiUpload size={32} className="text-blue-600" />
+              <h1 className="text-3xl lg:text-4xl font-bold text-slate-900">
+                Create Notice
+              </h1>
+            </div>
+            <p className="text-slate-600">Share important documents with your institution</p>
           </div>
 
           {/* Alert Messages */}
           {message.text && (
-            <div className={`mb-6 p-4 rounded-xl backdrop-blur-xl border ${
+            <div className={`mb-6 p-4 rounded-xl border-2 flex items-center gap-3 ${
               message.type === 'success' 
-                ? 'bg-green-500/20 border-green-500/50 text-green-300' 
-                : 'bg-red-500/20 border-red-500/50 text-red-300'
-            } animate-slideDown`}>
-              <p className="font-semibold text-center">{message.text}</p>
+                ? 'bg-green-50 border-green-500 text-green-800' 
+                : 'bg-red-50 border-red-500 text-red-800'
+            }`}>
+              {message.type === 'success' ? (
+                <FiCheckCircle size={20} className="flex-shrink-0" />
+              ) : (
+                <FiAlertCircle size={20} className="flex-shrink-0" />
+              )}
+              <p className="font-semibold">{message.text}</p>
             </div>
           )}
 
           {/* Main Form Container */}
-          <div className="bg-gray-800/50 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-700/50">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 lg:p-8">
             
             <form onSubmit={handleSubmit} className="space-y-6">
               
               {/* File Upload Area */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-4">
-                  📁 Select File <span className="text-pink-400">*</span>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                  <FiFile size={14} />
+                  Select File <span className="text-red-500">*</span>
                 </label>
                 
                 <div
                   onDragOver={handleDragOver}
                   onDrop={handleDrop}
-                  className="relative border-2 border-dashed border-gray-600/50 rounded-xl p-8 transition-all hover:border-purple-500 hover:bg-purple-500/5 cursor-pointer group"
+                  className="relative border-2 border-dashed border-slate-300 rounded-xl p-8 transition-all hover:border-blue-400 hover:bg-blue-50 cursor-pointer group"
                 >
                   <input
                     ref={fileInputRef}
@@ -203,33 +260,36 @@ const CreateNotice = () => {
                     onChange={handleFileChange}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     disabled={loading}
+                    accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png"
                   />
                   
                   <div className="text-center">
-                    <div className="text-5xl mb-3 group-hover:scale-110 transition-transform">
-                      {file ? getFileIcon() : '📂'}
+                    <div className="mb-4 flex justify-center group-hover:scale-110 transition-transform">
+                      {file ? getFileIcon(file.type) : <FiFile size={48} className="text-slate-400" />}
                     </div>
                     
                     {file ? (
                       <>
-                        <p className="text-white font-semibold text-lg">{file.name}</p>
-                        <p className="text-gray-400 text-sm mt-2">{formatFileSize(file.size)}</p>
+                        <p className="text-slate-900 font-semibold text-lg mb-2">{file.name}</p>
+                        <p className="text-slate-600 text-sm mb-4">{formatFileSize(file.size)}</p>
                         <button
                           type="button"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setFile(null);
                             if (fileInputRef.current) fileInputRef.current.value = '';
                           }}
-                          className="mt-4 px-4 py-2 bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 rounded-lg transition-all text-sm font-semibold"
+                          className="inline-flex items-center gap-2 px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-lg transition-all text-sm font-semibold"
                         >
-                          ✕ Remove File
+                          <FiX size={16} />
+                          Remove File
                         </button>
                       </>
                     ) : (
                       <>
-                        <p className="text-white font-semibold text-lg">Drag & drop your file here</p>
-                        <p className="text-gray-400 text-sm mt-2">or click to browse</p>
-                        <p className="text-gray-500 text-xs mt-3">Supported: PDF, Word, Excel, Text, Images (Max 10MB)</p>
+                        <p className="text-slate-900 font-semibold text-lg mb-2">Drag & drop your file here</p>
+                        <p className="text-slate-600 text-sm mb-3">or click to browse</p>
+                        <p className="text-slate-500 text-xs">Supported: PDF, Word, Excel, Text, Images (Max 10MB)</p>
                       </>
                     )}
                   </div>
@@ -238,18 +298,19 @@ const CreateNotice = () => {
 
               {/* Notice Type Dropdown */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  🏷️ Notice Type <span className="text-pink-400">*</span>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                  <MdEventNote size={14} />
+                  Notice Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={noticeType}
                   onChange={(e) => setNoticeType(e.target.value)}
                   disabled={loading}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all"
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-900 focus:border-blue-500 focus:bg-white focus:outline-none transition-all"
                 >
                   {noticeTypes.map((type) => (
                     <option key={type.value} value={type.value}>
-                      {type.icon} {type.label}
+                      {type.label}
                     </option>
                   ))}
                 </select>
@@ -257,125 +318,102 @@ const CreateNotice = () => {
 
               {/* Description */}
               <div>
-                <label className="block text-sm font-semibold text-gray-300 mb-2">
-                  📝 Description <span className="text-pink-400">*</span>
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-700 mb-2">
+                  <FiFileText size={14} />
+                  Description <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Enter a detailed description for this file..."
+                  placeholder="Enter a detailed description for this notice..."
                   rows="4"
+                  maxLength={500}
                   disabled={loading}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-all resize-none"
+                  className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:bg-white focus:outline-none transition-all resize-none"
                 />
-                <p className="text-gray-400 text-xs mt-2">
-                  {description.length} / 500 characters
-                </p>
+                <div className="flex justify-between items-center mt-2 text-xs text-slate-500">
+                  <span>Minimum 10 characters</span>
+                  <span>{description.length} / 500</span>
+                </div>
               </div>
 
               {/* File Info Box */}
               {file && (
-                <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                  <p className="text-blue-300 text-sm">
-                    <strong>File Info:</strong> {file.type || 'Unknown type'} • {formatFileSize(file.size)}
-                  </p>
+                <div className="flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                  <FiInfo className="text-blue-600 flex-shrink-0" size={20} />
+                  <div className="flex-1">
+                    <p className="text-blue-900 font-medium text-sm">File ready for upload</p>
+                    <p className="text-blue-700 text-xs mt-1">
+                      {file.type || 'Unknown type'} • {formatFileSize(file.size)}
+                    </p>
+                  </div>
                 </div>
               )}
 
               {/* Submit Button */}
               <button
                 type="submit"
-                disabled={loading || !file}
-                className={`w-full py-4 rounded-lg font-bold text-white transition-all duration-300 transform flex items-center justify-center gap-2 ${
-                  loading || !file
-                    ? 'bg-gray-600 cursor-not-allowed opacity-50'
-                    : 'bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 hover:scale-105 active:scale-95'
+                disabled={loading || !file || !description.trim()}
+                className={`w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold text-white transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] active:scale-[0.98] ${
+                  loading || !file || !description.trim()
+                    ? 'bg-slate-400 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700'
                 }`}
               >
                 {loading ? (
-                  <>
-                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                    Uploading...
-                  </>
+                  <LoadingSpinner />
                 ) : (
                   <>
-                    🚀 Upload File
+                    <FiUpload size={20} />
+                    Upload Notice
                   </>
                 )}
               </button>
 
               {/* Progress Bar */}
               {loading && (
-                <div className="w-full bg-gray-700/30 rounded-full h-2 overflow-hidden">
-                  <div
-                    className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-300 animate-pulse"
-                    style={{ width: '75%' }}
-                  ></div>
+                <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                  <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-full transition-all duration-300 animate-pulse" style={{ width: '75%' }}></div>
                 </div>
               )}
             </form>
           </div>
 
-          {/* Info Card */}
+          {/* Info Cards */}
           <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
             
-            <div className="p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl backdrop-blur-sm">
-              <p className="text-purple-300 text-center">
-                <span className="text-2xl block mb-2">📄</span>
-                <strong className="text-sm">Multiple Formats</strong>
-                <p className="text-xs mt-1">PDF, Word, Excel, Images</p>
-              </p>
+            <div className="p-5 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <FiFile size={20} className="text-purple-600" />
+                </div>
+                <p className="font-bold text-slate-900 text-sm">Multiple Formats</p>
+              </div>
+              <p className="text-xs text-slate-600">PDF, Word, Excel, Images</p>
             </div>
 
-            <div className="p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl backdrop-blur-sm">
-              <p className="text-blue-300 text-center">
-                <span className="text-2xl block mb-2">🔒</span>
-                <strong className="text-sm">Secure Upload</strong>
-                <p className="text-xs mt-1">All data encrypted</p>
-              </p>
+            <div className="p-5 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <FiLock size={20} className="text-blue-600" />
+                </div>
+                <p className="font-bold text-slate-900 text-sm">Secure Upload</p>
+              </div>
+              <p className="text-xs text-slate-600">All data encrypted</p>
             </div>
 
-            <div className="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl backdrop-blur-sm">
-              <p className="text-cyan-300 text-center">
-                <span className="text-2xl block mb-2">⚡</span>
-                <strong className="text-sm">Fast & Reliable</strong>
-                <p className="text-xs mt-1">Up to 10MB files</p>
-              </p>
+            <div className="p-5 bg-white border border-slate-200 rounded-xl hover:shadow-md transition-shadow">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                  <FiZap size={20} className="text-green-600" />
+                </div>
+                <p className="font-bold text-slate-900 text-sm">Fast & Reliable</p>
+              </div>
+              <p className="text-xs text-slate-600">Up to 10MB files</p>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Animations */}
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob {
-          animation: blob 7s infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
-        @keyframes slideDown {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-slideDown {
-          animation: slideDown 0.3s ease-out;
-        }
-      `}</style>
     </>
   );
 };
