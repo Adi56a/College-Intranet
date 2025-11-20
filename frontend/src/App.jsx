@@ -17,6 +17,8 @@ import NoticeToFaculty from './pages/NoticeToFaculty';
 import ManageSubjects from './pages/ManageSubjects';
 import Event from './pages/Event';
 import Personal from './pages/Personal';
+import UpdatePassword from './pages/UpdatePassword';
+
 // Unauthorized Access Component with Role-Based Navigation
 const UnauthorizedAccess = () => {
   const navigate = useNavigate();
@@ -282,6 +284,10 @@ function App() {
           />
 
           {/* Student Routes - Only Student can access */}
+          <Route 
+            path="/update-password" 
+            element={<ProtectedRoute element={<UpdatePassword />} requiredRoles={['student']} />} 
+          />
           <Route 
             path="/student-dashboard" 
             element={<ProtectedRoute element={<StudentDashboard />} requiredRoles={['student']} />} 
